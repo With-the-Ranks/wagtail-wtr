@@ -1,0 +1,42 @@
+{% load i18n %}
+{% if page_obj.has_other_pages %}
+<nav class="mt-10 flex items-center justify-center gap-1" aria-label="{% trans 'Pagination' %}">
+
+    {% if page_obj.has_previous %}
+        <a href="?page={{ page_obj.previous_page_number }}"
+           class="inline-flex items-center rounded-md border border-neutral-300 bg-light px-3 py-2 text-sm font-medium text-neutral-700 hover:bg-neutral-50">
+            &larr; {% trans "Previous" %}
+        </a>
+    {% else %}
+        <span class="inline-flex items-center rounded-md border border-neutral-200 bg-neutral-100 px-3 py-2 text-sm font-medium text-neutral-400 cursor-not-allowed">
+            &larr; {% trans "Previous" %}
+        </span>
+    {% endif %}
+
+    {% for num in page_obj.paginator.page_range %}
+        {% if page_obj.number == num %}
+            <span class="inline-flex items-center rounded-md bg-primary-600 px-3 py-2 text-sm font-semibold text-light"
+                  aria-current="page">
+                {{ num }}
+            </span>
+        {% elif num > page_obj.number|add:"-3" and num < page_obj.number|add:"3" %}
+            <a href="?page={{ num }}"
+               class="inline-flex items-center rounded-md border border-neutral-300 bg-light px-3 py-2 text-sm font-medium text-neutral-700 hover:bg-neutral-50">
+                {{ num }}
+            </a>
+        {% endif %}
+    {% endfor %}
+
+    {% if page_obj.has_next %}
+        <a href="?page={{ page_obj.next_page_number }}"
+           class="inline-flex items-center rounded-md border border-neutral-300 bg-light px-3 py-2 text-sm font-medium text-neutral-700 hover:bg-neutral-50">
+            {% trans "Next" %} &rarr;
+        </a>
+    {% else %}
+        <span class="inline-flex items-center rounded-md border border-neutral-200 bg-neutral-100 px-3 py-2 text-sm font-medium text-neutral-400 cursor-not-allowed">
+            {% trans "Next" %} &rarr;
+        </span>
+    {% endif %}
+
+</nav>
+{% endif %}

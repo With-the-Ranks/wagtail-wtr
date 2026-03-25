@@ -428,6 +428,16 @@ always registered in `BodyStreamBlock` — hiding is purely a UI concern.
 - **Parent**: Any page
 - **Notes**: AJAX submission. Form replaced with thank_you_text on success. Also
   used by SignupBlock (wagtail_forms variant) for inline form rendering.
+- **Future: platform forwarding** — `process_form_submission()` is the correct
+  override point for forwarding submissions to Action Network (or other platforms).
+  When `IntegrationSettings.signup_platform == "action_network"`, override this
+  method to POST cleaned form data to the Action Network API using
+  `IntegrationSettings.action_network_api_key`. Field mapping (email → email,
+  first_name, last_name, zip, etc.) and an optional `action_network_action_id`
+  field on `FormPage` will be needed. A `FormMixin` in `wtrx/` is the clean
+  abstraction for this — keeps the AN forwarding logic in the extractable package.
+  Error handling: log API failures and continue (don't block the user's submission).
+  Not implemented in Phase 3 — no architectural changes to Phase 3 required.
 
 ---
 
@@ -614,7 +624,7 @@ base.html
 - Copyright line (from FooterSettings.copyright_text, fallback: "(c) {year} {site name}")
 
 ### Hero (`components/hero.html`)
-- h1: `hero.headline` if set, otherwise `page.title`
+- h1: `hero.headline` — always set by `get_context()` (falls back to `page.title` there, not in template)
 - Subtext: `hero.copy` (rendered via `|richtext` filter when `hero.copy_is_block=False`)
 - Image: `hero.image`
 - CTA button: `hero.link_text` + `hero.link_page`/`hero.link_url`
@@ -767,22 +777,30 @@ root), SiteSettings records, and optionally loads demo fixtures. Creating the
 - [x] Regenerated migrations directly (no test site round-trip needed)
 - [x] Updated AGENTS.md, PLAN.md, README.md, .gitignore, pyproject.toml
 
-### Phase 2: StreamField Blocks
-- `wtrx/blocks/content.py` -- 7 content blocks (use `gettext_lazy` for default values)
-- `wtrx/blocks/layout.py` -- 3 layout blocks
-- `wtrx/blocks/composite.py` -- CalloutBlock, HeroBlock
-- `wtrx/blocks/cards.py` -- CardBlock, PersonCardBlock
-- `wtrx/blocks/actions.py` -- DonateBlock, SignupBlock variants, dynamic registration
-- `wtrx/blocks/__init__.py` -- BodyStreamBlock assembly
-- Block templates (16 files, all with `{% load i18n %}` and `{% trans %}` on UI strings)
-- Component templates (hero, button, card, person_card, pagination)
+### ✅ Phase 2: StreamField Blocks — COMPLETE (commit 28e0d1c)
+- [x] All 18 blocks consolidated in `wtrx/blocks/__init__.py` (single file)
+- [x] `ACTION_NETWORK_ACTION_TYPE_CHOICES` + `action_type` field on `SignupActionNetworkBlock`
+- [x] `HeroBlock.get_context()` normalises fields into `hero` dict (`copy_is_block=False`)
+- [x] `hero.html` branch-free component; `hero_block.html` simplified to `{% include %}`
+- [x] `table_block.html` fixed to use Wagtail's structured context variables
+- [x] Semantic color tokens (`bg-light/dark`, `text-light/dark`) applied across all templates
+- [x] Block label strings in Title Case throughout
+- [x] `components/hero.html` context contract documented in AGENTS.md and PLAN.md
+- [x] Agent code review (all blocking issues addressed)
+- [x] Human code review + commit
 
-### Phase 3: Page Types
-- `home/models.py` -- HomePage
-- `pages/models.py` -- ContentPage, IndexPage
-- `forms/models.py` -- FormPage
-- Page templates (4 files)
-- Migrations
+### ✅ Phase 3: Page Types — COMPLETE
+- [x] `home/models.py` -- HomePage(BasePage, HeroMixin) with body StreamField
+- [x] `pages/models.py` -- ContentPage(BasePage, HeroMixin), IndexPage(BasePage, HeroMixin)
+- [x] `forms/models.py` -- FormField(AbstractFormField) + FormPage(BasePage, AbstractEmailForm)
+- [x] `templates/base_page.html` -- add `{% block hero %}` between header and content
+- [x] Page templates (4 files in `templates/pages/`)
+- [x] `templates/components/pagination.html`
+- [x] Migrations for `home`, `pages`, `forms`
+- [x] `wtrx_tags.page_as_card` template tag for IndexPage child card rendering
+- [x] Tests for all 4 page types (home, pages, forms)
+- [x] Agent code review
+- [x] Human review + commit
 
 ### Phase 4: Navigation & Footer
 - `navigation/header.html` -- logo, nav links, CTA button, mobile hamburger,
