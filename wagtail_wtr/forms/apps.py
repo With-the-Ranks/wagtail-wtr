@@ -2,6 +2,6 @@ from django.apps import AppConfig
 
 
 class FormsConfig(AppConfig):
-    name = "{{ project_name }}.forms"
-    label = "{{ project_name }}_forms"
+    name = "wagtail_wtr.forms"
+    label = "wagtail_wtr_forms"
     verbose_name = "Forms"

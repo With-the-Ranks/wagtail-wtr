@@ -1,5 +1,5 @@
 """
-Django settings for {{ project_name }} project.
+Django settings for wagtail_wtr project.
 
 Requires Python 3.13+, Django 5.2 LTS, Wagtail 7.0 LTS.
 """
@@ -11,7 +11,7 @@ from django.utils.translation import gettext_lazy as _
 PROJECT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 BASE_DIR = os.path.dirname(PROJECT_DIR)
 
-# Overridden by dev.py ({{ secret_key }}) and production.py (os.environ["SECRET_KEY"]).
+# Overridden by dev.py (a hardcoded insecure key) and production.py (os.environ["SECRET_KEY"]).
 # base.py must never be used as DJANGO_SETTINGS_MODULE directly.
 # If SECRET_KEY is not overridden, Django's --deploy check will warn,
 # and production.py will crash with KeyError if SECRET_KEY env var is absent.
@@ -22,12 +22,12 @@ DEBUG = False
 ALLOWED_HOSTS = []
 
 INSTALLED_APPS = [
-    "{{ project_name }}.home",
-    "{{ project_name }}.pages",
-    "{{ project_name }}.forms",
-    "{{ project_name }}.users",
-    "{{ project_name }}.search",
-    "{{ project_name }}.wtrx",
+    "wagtail_wtr.home",
+    "wagtail_wtr.pages",
+    "wagtail_wtr.forms",
+    "wagtail_wtr.users",
+    "wagtail_wtr.search",
+    "wagtail_wtr.wtrx",
     "wagtail.contrib.forms",
     "wagtail.contrib.redirects",
     "wagtail.contrib.settings",
@@ -67,7 +67,7 @@ MIDDLEWARE = [
     "wagtail.contrib.redirects.middleware.RedirectMiddleware",
 ]
 
-ROOT_URLCONF = "{{ project_name }}.urls"
+ROOT_URLCONF = "wagtail_wtr.urls"
 
 TEMPLATES = [
     {
@@ -88,7 +88,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = "{{ project_name }}.wsgi.application"
+WSGI_APPLICATION = "wagtail_wtr.wsgi.application"
 
 DATABASES = {
     "default": {
@@ -108,7 +108,7 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 # Custom user model
-AUTH_USER_MODEL = "{{ project_name }}_users.User"
+AUTH_USER_MODEL = "wagtail_wtr_users.User"
 
 # Internationalization
 USE_I18N = True
@@ -141,9 +141,9 @@ MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 MEDIA_URL = "/media/"
 
 # Wagtail settings
-WAGTAIL_SITE_NAME = "{{ project_name }}"
+WAGTAIL_SITE_NAME = "My Site"
 # WAGTAILADMIN_BASE_URL is set in dev.py and production.py
-WAGTAILIMAGES_IMAGE_MODEL = "{{ project_name }}_wtrx.CustomImage"
+WAGTAILIMAGES_IMAGE_MODEL = "wagtail_wtr_wtrx.CustomImage"
 
 WAGTAILSEARCH_BACKENDS = {
     "default": {

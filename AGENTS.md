@@ -4,141 +4,116 @@ Guidelines for AI coding agents working in this repository.
 
 ## Project Overview
 
-wagtail-wtr is a Wagtail project template for campaign, nonprofit, and organizer
-websites. It is used via `wagtail start --template` and contains a reusable `wtrx/`
-sub-app inside `project_name/` designed for eventual extraction to a pip package.
+wagtail-wtr is the Wagtail CMS platform used at With the Ranks for campaign,
+nonprofit, and organizer websites. It is a working Django/Wagtail project —
+not a `wagtail start --template`. New client sites fork or clone this repo.
+
+The core reusable app lives at `wagtail_wtr/wtrx/` and is designed for eventual
+extraction to a standalone pip package (`wagtail-wtrx`), following a pattern
+similar to CodeRed CMS.
 
 See `PLAN.md` for the full specification and architectural decisions.
 
 ## Repository Structure
 
-The repo root IS the template. `project_name/` is renamed by `wagtail start`.
+```
+wagtail-wtr/
+├── wagtail_wtr/            # Main Django project package
+│   ├── wtrx/               # Core reusable app (future pip package)
+│   │   ├── blocks/         # StreamField blocks, one file per category
+│   │   ├── migrations/
+│   │   ├── templatetags/
+│   │   ├── tests/
+│   │   ├── apps.py
+│   │   ├── images.py       # CustomImage, CustomRendition
+│   │   ├── models.py       # BasePage, HeroMixin
+│   │   └── site_settings.py
+│   ├── home/               # HomePage (site-specific layer)
+│   ├── pages/              # ContentPage, IndexPage
+│   ├── forms/              # FormPage
+│   ├── users/              # Custom User model
+│   ├── search/             # Search view
+│   ├── settings/
+│   │   ├── base.py
+│   │   ├── dev.py
+│   │   └── production.py
+│   ├── urls.py
+│   └── wsgi.py
+├── templates/              # Global Django templates (NOT per-app)
+├── static_src/             # Frontend source (Tailwind, JS)
+├── static_compiled/        # Tailwind CLI output (committed to repo)
+├── fixtures/
+├── manage.py
+├── pyproject.toml
+├── Makefile
+└── Dockerfile
+```
 
-- `project_name/wtrx/` -- Core reusable app. DO NOT put site-specific code here.
-- `project_name/wtrx/blocks/` -- StreamField blocks, one file per category.
-- `project_name/wtrx/site_settings.py` -- All Wagtail site settings models.
-- `project_name/wtrx/models.py` -- BasePage, HeroMixin, core abstract models.
-- `project_name/wtrx/images.py` -- CustomImage model.
-- `project_name/home/`, `pages/`, `forms/` -- Page type apps (site-specific layer).
+- `wagtail_wtr/wtrx/` -- Core reusable app. DO NOT put site-specific code here.
+- `wagtail_wtr/wtrx/blocks/` -- StreamField blocks, one file per category.
+- `wagtail_wtr/wtrx/site_settings.py` -- All Wagtail site settings models.
+- `wagtail_wtr/wtrx/models.py` -- BasePage, HeroMixin, core abstract models.
+- `wagtail_wtr/wtrx/images.py` -- CustomImage model.
+- `wagtail_wtr/home/`, `pages/`, `forms/` -- Page type apps (site-specific layer).
 - `templates/` -- Global Django templates (NOT per-app).
-- `static_src/` -- Frontend source (Tailwind, JS, Sass).
+- `static_src/` -- Frontend source (Tailwind, JS).
 - `static_compiled/` -- Tailwind CLI output (committed to repo).
 
 ## How to Dev and Test This Repo
 
-### Critical constraint: you cannot run Django commands in this repo directly
+This is a standard Django project. All commands run from the repo root.
 
-`manage.py` and `settings/base.py` contain `{{ project_name }}` tokens that are
-only resolved when `wagtail start` processes them. Running `python manage.py` from
-the repo root will always fail with `ModuleNotFoundError: No module named '{{ project_name }}'`.
-
-The Makefile commands (`make test`, `make dev`, `make migrate`, etc.) are intended
-to be run **from a generated site**, not from this repo root. The one exception is
-`make venv` — `pyproject.toml` has no template tokens, so installing Python
-dependencies into a `.venv` from the repo root works fine and gives you the correct
-versions of Django, Wagtail, etc. for editor tooling and type checking.
-
-### The two workflows
-
-**1. Editing template files** (models, blocks, templates, static files, settings)
-
-Just edit files directly in the repo. No server or Django needed. The `.venv` from
-`make venv` gives editors (LSP, type checkers) access to the installed packages.
+### Python (Django)
 
 ```bash
-make venv           # one-time: installs Django, Wagtail, etc. into .venv
+make venv                    # Create .venv and install all dependencies
 source .venv/bin/activate
-# edit files freely
+make migrate                 # Run migrations
+make test                    # Run all tests
+make dev                     # Dev server at localhost:8000
+make createsuperuser         # Create admin user
+make setup                   # Interactive initial setup
 ```
 
-**2. Running, testing, and verifying changes**
-
-You must generate a test site first, then run everything inside it.
+Granular test runs:
 
 ```bash
-# Generate a fresh test site (always use .tmp/ — it's gitignored and auto-excluded
-# by Django's startproject walker so previously generated HTML won't be re-processed)
-wagtail start --template=. testproject .tmp/test-site
-
-# Set up the test site
-cd .tmp/test-site
-make venv
-source .venv/bin/activate
-make migrate
-make test                     # run all tests
-make dev                      # run dev server at localhost:8000
+python manage.py test wagtail_wtr                                    # all tests
+python manage.py test wagtail_wtr.wtrx                               # wtrx app only
+python manage.py test wagtail_wtr.wtrx.tests.test_images             # single module
+python manage.py test wagtail_wtr.wtrx.tests.test_images.TestObjectPositionStyle  # single class
 ```
-
-Granular test runs inside the test site:
-
-```bash
-python manage.py test testproject.wtrx                              # wtrx app only
-python manage.py test testproject.wtrx.tests.test_images            # single module
-python manage.py test testproject.wtrx.tests.test_images.TestObjectPositionStyle  # single class
-python manage.py test testproject.wtrx.tests.test_images.TestObjectPositionStyle.test_focal_point_center  # single test
-```
-
-**3. Iterating: applying template changes to an existing test site**
-
-`wagtail start` generates a project once. After you edit template files, you have
-two options:
-
-- **Re-generate** (cleanest): delete `.tmp/test-site` and run `wagtail start` again.
-  Always required if you changed `{{ project_name }}` token substitutions in `.py` files.
-
-- **Copy changed files** (faster for template-only or Python changes that don't
-  affect `{{ project_name }}` substitution): manually copy the changed files from
-  `project_name/` into `.tmp/test-site/testproject/`, replacing `project_name` with
-  `testproject` in any imports or references.
-
-Re-generating is always the safer option and is strongly preferred.
 
 ### Generating Migrations
 
-Migrations CANNOT be generated directly in this repo. Always generate via a test site
-and copy them back:
+Migrations are generated directly in the repo:
 
 ```bash
-# 1. Generate a fresh test site from the current template state
-wagtail start --template=. testproject .tmp/test-site
-cd .tmp/test-site && make venv && source .venv/bin/activate
-
-# 2. Generate migrations inside the test site
+source .venv/bin/activate
 python manage.py makemigrations
-
-# 3. Copy new/changed migration files back into the template repo,
-#    replacing the resolved project name with {{ project_name }}
-#    in any import or reference (e.g. "testproject_wtrx" -> "{{ project_name }}_wtrx")
-cp .tmp/test-site/testproject/wtrx/migrations/0002_*.py \
-   /path/to/wagtail-wtr/project_name/wtrx/migrations/
-
-# 4. Verify migrations apply cleanly
 python manage.py migrate
-python manage.py test testproject
+python manage.py test wagtail_wtr
 ```
 
-Never hand-write migrations. See pitfall #16 for details.
+Never hand-write migrations. Always use `makemigrations`.
 
 ### Frontend (CSS/JS)
 
-The frontend build does NOT require a generated test site — `npm`/Tailwind CLI
-operate only on files in `static_src/` and `templates/`, which have no template tokens.
-
 ```bash
-npm install                              # Install Node dependencies (once only)
-make build                               # Dev CSS build (Tailwind CLI)
-make build-prod                          # Production CSS build (minified)
-make watch                               # Watch mode (rebuilds CSS on change)
+npm install                  # Install Node dependencies (once only)
+make build                   # Dev CSS build (Tailwind CLI)
+make build-prod              # Production CSS build (minified)
+make watch                   # Watch mode (rebuilds CSS on change)
 ```
 
-`static_compiled/css/main.css` is committed to the repo so generated sites have
-working CSS immediately without needing to run `npm install` and `make build` first.
+`static_compiled/css/main.css` is committed to the repo so forked client sites
+have working CSS immediately without needing to run `npm install` and `make build`.
 
 ### Docker
 
 ```bash
-docker build -t wagtail-wtr .            # Build image (from repo root)
-# Run inside a generated site for load-data / collectstatic
+docker build -t wagtail-wtr .   # Build image
+make load-data                  # migrate + loaddata fixtures/demo.json + collectstatic
 ```
 
 ## Code Style
@@ -152,8 +127,8 @@ docker build -t wagtail-wtr .            # Build image (from repo root)
   3. Wagtail
   4. Third-party packages
   5. Local app imports
-  Use absolute imports with `{{ project_name }}` prefix for cross-app imports
-  (e.g., `from {{ project_name }}.wtrx.blocks import BodyStreamBlock`).
+  Use absolute imports with `wagtail_wtr` prefix for cross-app imports
+  (e.g., `from wagtail_wtr.wtrx.blocks import BodyStreamBlock`).
 - **Strings**: Use double quotes for human-readable strings (help_text, verbose_name).
   Use single quotes for identifiers and keys (dict keys, field names, choice values).
 - **Models**: One model per logical concern. Use abstract models for shared behavior.
@@ -175,29 +150,7 @@ docker build -t wagtail-wtr .            # Build image (from repo root)
 
 ### Templates (HTML)
 
-- **CRITICAL**: All `.html` template files MUST be wrapped in
-  `{% verbatim %}{% endverbatim %}` as the first and last lines.
-  This is required for `wagtail start --template` compatibility — the template
-  engine processes ALL files in the repo (including `.html`) when generating a
-  new project, and without `{% verbatim %}`, any `{% load %}` or `{{ variable }}`
-  tag in an HTML file will cause a `TemplateSyntaxError` and abort the project
-  creation. The `{% verbatim %}` wrapper prevents the engine from parsing those
-  tags during project creation; at runtime the outer `{% verbatim %}` tags are
-  not present (they were only in the template source).
-  - HTML files NEVER contain `{{ project_name }}` substitution — that only
-    happens in `.py` files (e.g., `manage.py`, `settings/base.py`, `urls.py`).
-    The `{% verbatim %}` wrapper is purely to prevent Django's template parser
-    from crashing on `{% load %}` calls during project creation.
-  - Example `.py` usage (substituted at project creation):
-    `os.environ.setdefault('DJANGO_SETTINGS_MODULE', '{{ project_name }}.settings.dev')`
-  - Example `.html` file structure:
-    ```
-    {% verbatim %}
-    {% load i18n wagtailcore_tags %}
-    {% extends "base.html" %}
-    {% block content %}...{% endblock %}
-    {% endverbatim %}
-    ```
+- **Standard Django templates**: No special wrappers needed. Write normal templates.
 - **Internationalization**: All user-facing UI strings in templates MUST use
   `{% trans "string" %}` (or `{% blocktrans %}...{% endblocktrans %}` for
   multi-word strings with variables). Add `{% load i18n %}` at the top of any
@@ -232,6 +185,7 @@ docker build -t wagtail-wtr .            # Build image (from repo root)
 
 1. **wtrx/ is self-contained**: It MUST NOT import from `home/`, `pages/`,
    `forms/`, or any other site-specific app. Those apps import FROM `wtrx/`.
+   This boundary is the future pip extraction point.
 2. **No circular imports**: Page-type apps depend on `wtrx/`, never the reverse.
 3. **Settings over hardcoding**: Platform-specific behavior (ActBlue, Action Network)
    is driven by `IntegrationSettings`, not hardcoded in blocks or templates.
@@ -253,6 +207,11 @@ docker build -t wagtail-wtr .            # Build image (from repo root)
    block for placing a hero-style section *within* the body StreamField (mid-page).
    They use the same component template (`components/hero.html`) but serve
    different structural roles.
+8. **wtrx/ extraction readiness**: Keep `wtrx/` structured as if it will become
+   a standalone pip package. Concrete models (CustomImage, settings models) will
+   ship with their own migrations when extracted. Abstract models (BasePage,
+   HeroMixin) will be provided for site apps to subclass. Follow the CodeRed CMS
+   pattern: package provides base classes, site apps provide thin concrete subclasses.
 
 ## Error Handling
 
@@ -267,9 +226,7 @@ docker build -t wagtail-wtr .            # Build image (from repo root)
 ## Testing
 
 - Tests live in each app's `tests/` directory (e.g., `wtrx/tests/`).
-- In the template repo, test paths are prefixed with `project_name.`
-  (e.g., `project_name.wtrx.tests.test_blocks`). In a generated site they
-  become `<projectname>.wtrx.tests.test_blocks`.
+- Test paths use the `wagtail_wtr` prefix: `wagtail_wtr.wtrx.tests.test_blocks`.
 - Test blocks in isolation: instantiate, call `clean()`, verify validation.
 - Test page models: use `WagtailPageTestCase`.
 - Test settings: verify defaults, verify admin override behavior.
@@ -311,89 +268,62 @@ docker build -t wagtail-wtr .            # Build image (from repo root)
    without needing `TranslatableMixin` listed anywhere. Run `make migrate` (or
    `python manage.py makemigrations --check`) after adding any new page model.
 
-4. **`{% verbatim %}` in HTML files**: Every `.html` file must start with
-   `{% verbatim %}` (first line) and end with `{% endverbatim %}` (last line).
-   `wagtail start --template` runs the Django template engine over every file
-   in the repo — including `.html` files — during project creation. Without
-   `{% verbatim %}`, any `{% load wagtailcore_tags %}` or similar tag causes a
-   `TemplateSyntaxError` and aborts project creation. The wrapper is only
-   present in the template source; the generated project's files do not need it.
-   Python files do NOT use verbatim — they contain `{{ project_name }}`
-   which IS substituted at project-creation time.
-
-5. **`hide_from_search` not `search_appearance`**: The field controlling search
+4. **`hide_from_search` not `search_appearance`**: The field controlling search
    visibility on `BasePage` is named `hide_from_search` (boolean, default False).
 
-6. **`static_compiled/` is committed**: The Tailwind CLI output directory
-   `static_compiled/` is intentionally committed to the repo so that new
-   projects generated from the template have working CSS/JS immediately without
-   needing to run `npm install` and `npm run build` first.
+5. **`static_compiled/` is committed**: The Tailwind CLI output directory
+   `static_compiled/` is intentionally committed to the repo so that forked
+   client sites have working CSS/JS immediately without needing to run
+   `npm install` and `npm run build` first.
 
-7. **`SocialLinkBlock` must be a named class**: Do not use an anonymous
+6. **`SocialLinkBlock` must be a named class**: Do not use an anonymous
    StructBlock inline in `SocialSettings.social_links`. Define
    `class SocialLinkBlock(blocks.StructBlock)` explicitly so it serializes
    correctly in migrations and the Wagtail editor.
 
-8. **Wagtail settings base class**: Use `BaseSiteSetting` (not `BaseSetting`).
+7. **Wagtail settings base class**: Use `BaseSiteSetting` (not `BaseSetting`).
    `BaseSetting` was renamed in Wagtail 4.x. The correct import is:
    `from wagtail.contrib.settings.models import BaseSiteSetting, register_setting`
 
-9. **Wagtail settings access in templates**: The `wagtail.contrib.settings.context_processors.settings`
+8. **Wagtail settings access in templates**: The `wagtail.contrib.settings.context_processors.settings`
    context processor is registered in `settings/base.py`, so `settings.<app_label>.ModelName`
    is available in all templates automatically. Do NOT use `SettingProxy` directly —
    it is an internal Wagtail API, not public. Use the context variable or the
    `{% load wagtailsettings_tags %}{% get_settings %}` tag for explicit access.
 
-10. **`admin_form_fields` on the concrete Image class**: Define `admin_form_fields`
-    explicitly on `CustomImage` using `Image.admin_form_fields` as the base — do NOT
-    copy the tuple verbatim or rely on inheritance from `AbstractImage`. This ensures
-    future Wagtail updates to the base field list are inherited automatically. Only
-    append fields that are actually defined on `CustomImage` itself:
-    ```python
-    class CustomImage(AbstractImage):
-        credit = models.CharField(max_length=255, blank=True)
-        admin_form_fields = Image.admin_form_fields + ("credit",)
-    ```
-    Note: `description` is already part of `Image.admin_form_fields` in Wagtail 7 —
-    do not append it again.
+9. **`admin_form_fields` on the concrete Image class**: Define `admin_form_fields`
+   explicitly on `CustomImage` using `Image.admin_form_fields` as the base — do NOT
+   copy the tuple verbatim or rely on inheritance from `AbstractImage`. This ensures
+   future Wagtail updates to the base field list are inherited automatically. Only
+   append fields that are actually defined on `CustomImage` itself:
+   ```python
+   class CustomImage(AbstractImage):
+       credit = models.CharField(max_length=255, blank=True)
+       admin_form_fields = Image.admin_form_fields + ("credit",)
+   ```
+   Note: `description` is already part of `Image.admin_form_fields` in Wagtail 7 —
+   do not append it again.
 
-11. **Choices constants must be module-level**: If you use `gettext_lazy` in
+10. **Choices constants must be module-level**: If you use `gettext_lazy` in
     field `choices`, define the choices list at module level (outside any class
     body). Choices defined inside a class body with `gettext_lazy` cause migration
     serialization failures because Django cannot serialize lazy translations in
     that context at migration time.
 
-12. **Docstrings and comments in `.py` files must not contain `{% %}` or `{{ }}` template syntax**:
-    `wagtail start` processes `.py` files through the Django template engine and will
-    crash on any `{% tag %}` or `{{ variable }}` syntax it finds — including in
-    comments and docstrings. Use plain text instead:
-    - Wrong: `# Access: {{ settings.myapp.MyModel.field }}`
-    - Right: `# Access: settings.<app_label>.MyModel.field`
-
-13. **Test projects go in `.tmp/` (hidden dir)**: Use `.tmp/test-site/` as the
-    target directory when running `wagtail start --template`. Django's startproject
-    walker auto-skips directories whose name starts with `.`, so previously
-    generated HTML files won't be re-processed and cause `TemplateSyntaxError`.
-    A non-hidden `tmp/` directory was picked up by the walker and caused failures.
-
-14. **`wagtail.search.index` vs `modelsearch`**: In Wagtail 7.3+, `wagtail.search`
+11. **`wagtail.search.index` vs `modelsearch`**: In Wagtail 7.3+, `wagtail.search`
     was partially extracted into a separate `modelsearch` package. Migrations
     generated on Wagtail 7.3+ will import `wagtail.search.index` (the real module
     is there), but you'll also see `modelsearch` as a listed dependency in some
     environments. Both are correct depending on the Wagtail version.
 
-15. **`.tmp/` is gitignored**: The hidden test-site directory `.tmp/` is in
-    `.gitignore`. Never check generated test projects into the template repo.
-
-16. **Never hand-write migrations**: Migrations MUST be generated by running
-    `python manage.py makemigrations` inside a test site created with
-    `wagtail start --template`. The template repo itself cannot run Django
-    commands directly because `manage.py` and `settings/base.py` contain
-    `{{ project_name }}` tokens that are unresolved until `wagtail start`
-    processes them. Hand-written migrations are error-prone and will drift
-    from what Django actually generates. Always use the Template Testing
-    workflow (see "How to Dev and Test This Repo" above) to produce migrations, then copy
-    them back into the template repo.
+12. **Never hand-write migrations**: Always use `python manage.py makemigrations`.
+    Hand-written migrations drift from what Django actually generates and cause
+    subtle errors. After adding or changing model fields, run:
+    ```bash
+    python manage.py makemigrations
+    python manage.py migrate
+    python manage.py test wagtail_wtr
+    ```
 
 ## Git Conventions
 

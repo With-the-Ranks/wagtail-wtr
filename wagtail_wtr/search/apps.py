@@ -2,6 +2,6 @@ from django.apps import AppConfig
 
 
 class SearchConfig(AppConfig):
-    name = "{{ project_name }}.search"
-    label = "{{ project_name }}_search"
+    name = "wagtail_wtr.search"
+    label = "wagtail_wtr_search"
     verbose_name = "Search"

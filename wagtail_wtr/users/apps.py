@@ -2,6 +2,6 @@ from django.apps import AppConfig
 
 
 class UsersConfig(AppConfig):
-    name = "{{ project_name }}.users"
-    label = "{{ project_name }}_users"
+    name = "wagtail_wtr.users"
+    label = "wagtail_wtr_users"
     verbose_name = "Users"

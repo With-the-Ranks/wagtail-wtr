@@ -4,7 +4,7 @@ from .base import *  # noqa: F401, F403
 DEBUG = True
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "{{ secret_key }}"
+SECRET_KEY = "django-insecure-dev-key-not-for-production-use-change-me"
 
 ALLOWED_HOSTS = ["*"]
 

@@ -1,13 +1,13 @@
 # wagtail-wtr
 
-A Wagtail project template for campaign, nonprofit, and organizer websites.
+A Wagtail website used by With the Ranks for campaign, nonprofit, and organizer
+websites. Fork or clone this repo to start a new site.
 
-Used via `wagtail start --template` to scaffold a new site with sensible defaults:
-semantic Tailwind design tokens, multi-lingual support via wagtail-localize, AJAX
-form submission, a 15-block StreamField library, and 4 page types ready to extend.
+Includes semantic Tailwind design tokens, multi-lingual support via wagtail-localize,
+AJAX form submission, a 15-block StreamField library, and 4 page types ready to extend.
 
-Contains a `wtrx/` sub-app designed for eventual extraction as a pip package
-(`wagtail-wtrx`).
+The `wtrx/` sub-app is designed for eventual extraction as a standalone pip package
+(`wagtail-wtrx`), following the CodeRed CMS pattern.
 
 ---
 
@@ -16,18 +16,16 @@ Contains a `wtrx/` sub-app designed for eventual extraction as a pip package
 - Python 3.13+
 - Node 20+ (see `.nvmrc`)
 - PostgreSQL (production) or SQLite (dev)
-- [Wagtail CLI](https://docs.wagtail.org/en/stable/reference/management_commands.html#start)
 
 ---
 
 ## Quickstart
 
-### 1. Create a new project
+### 1. Fork or clone the repo
 
 ```bash
-pip install wagtail
-wagtail start --template=https://github.com/withtheranks/wagtail-wtr/archive/main.zip mysite /path/to/mysite
-cd /path/to/mysite
+git clone https://github.com/withtheranks/wagtail-wtr.git mysite
+cd mysite
 ```
 
 ### 2. Set up the virtual environment and install dependencies
@@ -124,8 +122,8 @@ make load-data        Migrate + load demo fixtures + collectstatic
 ## Project structure
 
 ```
-mysite/
-├── mysite/
+wagtail-wtr/
+├── wagtail_wtr/
 │   ├── wtrx/               # Core reusable app (don't edit on client sites)
 │   │   ├── blocks/         # StreamField blocks (content, layout, composite, cards, actions)
 │   │   ├── models.py       # BasePage, HeroMixin
@@ -187,7 +185,7 @@ make build-prod
 
 ## Adding languages
 
-In `mysite/settings/base.py`, uncomment or add languages:
+In `wagtail_wtr/settings/base.py`, uncomment or add languages:
 
 ```python
 WAGTAIL_CONTENT_LANGUAGES = LANGUAGES = [
@@ -219,16 +217,18 @@ Override per-site in the Wagtail admin under **Settings > Integrations**.
 # Watch mode: rebuilds CSS on file changes
 make watch
 
-# Run a specific test
-python manage.py test mysite.wtrx.tests.test_blocks
+# Run tests
+python manage.py test wagtail_wtr
 
-# Test the template itself (generates a fresh project and runs its tests)
-wagtail start --template=. testproject .tmp/test-site
-python .tmp/test-site/manage.py migrate
-python .tmp/test-site/manage.py test testproject
+# Run a specific test module
+python manage.py test wagtail_wtr.wtrx.tests.test_images
+
+# Generate migrations after model changes
+python manage.py makemigrations
+python manage.py migrate
 ```
 
-Create `mysite/settings/local.py` for personal overrides (gitignored):
+Create `wagtail_wtr/settings/local.py` for personal overrides (gitignored):
 
 ```python
 from .dev import *
@@ -241,7 +241,7 @@ DEBUG = True
 
 ## Deployment
 
-The template ships with:
+Ships with:
 
 - `Dockerfile` (Python 3.13-slim)
 - `whitenoise` for static file serving

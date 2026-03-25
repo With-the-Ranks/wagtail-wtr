@@ -2,24 +2,27 @@
 
 ## Overview
 
-A Wagtail project template for campaign, nonprofit, and organizer websites. Used via
-`wagtail start --template`. Contains a reusable `wtrx/` sub-app designed for eventual
-extraction to a pip package.
+wagtail-wtr is the Wagtail CMS platform used at With the Ranks for campaign,
+nonprofit, and organizer websites. New client sites fork or clone this repo.
 
 **Target users (MVP)**: Developers at With the Ranks who spin up new campaign/nonprofit
 sites. They want to get 80% done fast, then theme and add site-specific functionality.
+
+**Eventual goal**: Extract `wtrx/` to a standalone pip package (`wagtail-wtrx`),
+following the CodeRed CMS pattern. The package will provide base classes; site apps
+provide thin concrete subclasses.
 
 ---
 
 ## Architecture
 
-The **entire repo root IS the template** (following the news-template pattern).
-`project_name/` is renamed by `wagtail start`. `wtrx/` is the core reusable app —
-client sites don't edit it, they extend/override.
+This is a standard Django project. `wagtail_wtr/` is the main project package.
+`wtrx/` is the core reusable app — client sites don't edit it, they extend/override.
+New sites fork this repo; the `wagtail_wtr` package name and app labels stay as-is.
 
 ```
 wagtail-wtr/
-├── project_name/
+├── wagtail_wtr/
 │   ├── wtrx/                       # Core reusable app (DON'T EDIT on client sites)
 │   │   ├── __init__.py
 │   │   ├── apps.py
@@ -142,8 +145,10 @@ wagtail-wtr/
 
 | Decision | Choice | Rationale |
 |---|---|---|
-| Template mechanism | Repo root IS the template | Matches Wagtail news-template pattern |
-| Reusable app | `wtrx/` sub-app inside `project_name/` | Visible boundary prevents mixing core + site-specific code. Designed for eventual pip extraction. |
+| Project structure | Working Django project, not a `wagtail start --template` | Developers can run `manage.py` directly; no token round-tripping for migrations |
+| New client sites | Fork/clone this repo | Sites keep `wagtail_wtr` package name; site-specific work goes in `home/`, `pages/`, `forms/` |
+| Reusable app | `wtrx/` sub-app inside `wagtail_wtr/` | Visible boundary prevents mixing core + site-specific code. Designed for eventual pip extraction. |
+| Future pip package | `wagtail-wtrx` (CodeRed pattern) | Package provides base classes; site apps provide thin concrete subclasses. Extraction happens when wtrx is stable. |
 | CSS framework | Tailwind with semantic design tokens | `bg-primary`, `font-heading`, etc. Sites customize via `tailwind.config.js`. No raw color values in templates. |
 | Dark mode | No (post-MVP) | Reduces CSS complexity |
 | Multi-lingual | Yes, via `wagtail-localize` | i18n infrastructure from day one. Sites default to English, add languages as needed. |
@@ -615,10 +620,7 @@ base.html
 - CTA button: `hero_link_text` + `hero_link_page`/`hero_link_url`
 - Same template used by all page types
 
-HTML templates use standard Django template syntax wrapped in
-`{% verbatim %}{% endverbatim %}` (required for `wagtail start --template`
-compatibility — see AGENTS.md for the full explanation). Only `.py` files
-contain `{{ project_name }}` substitution.
+HTML templates use standard Django template syntax. No special wrappers needed.
 
 ---
 
@@ -709,7 +711,7 @@ tailwindcss
 
 ### `setup_site`
 
-Interactive command run after `wagtail start`:
+Interactive command run after cloning/forking the repo:
 
 ```
 $ make setup
@@ -738,20 +740,26 @@ root), SiteSettings records, and optionally loads demo fixtures. Creating the
 - `search/` app with search view (Query/add_hit removed — dropped in Wagtail 7.0)
 - Base templates (`base.html`, `base_page.html`, `404.html`, `500.html`)
 - `WAGTAILADMIN_BASE_URL` in `dev.py`/`production.py` (not `base.py`)
-- `{% extends %}` before `{% load %}` inside `{% verbatim %}` blocks
-- `wagtail start --template` confirmed working; 15/15 tests pass
+- Originally scaffolded as `wagtail start --template`; 15/15 tests passed
 
-### ✅ Phase 1: Core Models & Settings — COMPLETE
-- [x] `wtrx/images.py` -- CustomImage + CustomRendition models
+### ✅ Phase 1: Core Models & Settings — COMPLETE (commit 0db0df6)
+- [x] `wtrx/images.py` -- CustomImage + CustomRendition models, `credit` field
 - [x] `wtrx/models.py` -- BasePage (`class BasePage(Page)` — no TranslatableMixin), HeroMixin
 - [x] `wtrx/site_settings.py` -- all 5 settings panels + InternalLinkBlock,
   ExternalLinkBlock, FooterColumnBlock, SocialLinkBlock
 - [x] `wtrx/templatetags/wtrx_tags.py` -- tag library stub (settings accessed via context processor)
 - [x] `WAGTAILIMAGES_IMAGE_MODEL` uncommented in `settings/base.py`
-- [x] `wtrx/migrations/0001_initial.py` -- generated and verified
+- [x] Migrations generated and verified
 - [x] Agent code review (issues addressed)
 - [x] Human code review
 - [x] Commit
+
+### ✅ Refactor: Template → Working Project — COMPLETE
+- [x] Renamed `project_name/` → `wagtail_wtr/`
+- [x] Replaced all `{{ project_name }}` tokens with `wagtail_wtr`
+- [x] Removed `{% verbatim %}` wrappers from all HTML templates
+- [x] Regenerated migrations directly (no test site round-trip needed)
+- [x] Updated AGENTS.md, PLAN.md, README.md, .gitignore, pyproject.toml
 
 ### Phase 2: StreamField Blocks
 - `wtrx/blocks/content.py` -- 7 content blocks (use `gettext_lazy` for default values)
@@ -792,7 +800,6 @@ root), SiteSettings records, and optionally loads demo fixtures. Creating the
 - `management/commands/setup_site.py` -- interactive setup command including
   language configuration prompt
 - `fixtures/demo.json` -- demo content
-- Verify `wagtail start --template` works end-to-end
 - Verify all blocks render correctly
 - Verify settings panels work
 - Verify AJAX form submission
@@ -810,7 +817,7 @@ root), SiteSettings records, and optionally loads demo fixtures. Creating the
 - **Inline Action Network forms via API** (currently uses their JS widget)
 - **Dark mode**
 - **Multi-site / multi-tenancy**
-- **pip extraction of wtrx/ package** (`wagtail-wtrx` on PyPI)
+- **pip extraction of wtrx/ package** (`wagtail-wtrx` on PyPI, following CodeRed CMS pattern)
 - **Theme switching** (multiple built-in themes)
 - **Additional blocks**: Stats, Events, Logo showcase, Countdown, Social links block
 - **Additional pages**: Blog/news listing, event listing
@@ -821,12 +828,11 @@ root), SiteSettings records, and optionally loads demo fixtures. Creating the
 
 These were analyzed during planning:
 
-- **[wagtail/news-template](https://github.com/wagtail/news-template)** -- Wagtail's
-  default starting template. Primary structural reference for this project.
 - **[wagtail/bakerydemo](https://github.com/wagtail/bakerydemo)** -- Official Wagtail
   patterns: multi-app structure, split settings, Docker, snippets.
-- **[coderedcorp/coderedcms](https://github.com/coderedcorp/coderedcms)** -- Reusable
-  blocks library, Bootstrap 5 layout blocks, snippets, project_template pattern.
+- **[coderedcorp/coderedcms](https://github.com/coderedcorp/coderedcms)** -- Primary
+  reference for the eventual `wagtail-wtrx` pip extraction pattern. Concrete base
+  page models, project template embedded in package, CodeRed CMS architecture.
 - **[torchbox/torchbox.com](https://github.com/torchbox/torchbox.com)** -- Production
    Wagtail site with Tailwind, poetry, Docker.
 - **websites-for-all** (With the Ranks' previous project, cloned in `websites-for-all/`

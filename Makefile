@@ -39,10 +39,10 @@ createsuperuser:
 	python manage.py createsuperuser
 
 setup:
-	python manage.py setup_site
+	python manage.py setup_site  # implemented in Phase 5 (not yet available)
 
 test:
-	python manage.py test
+	python manage.py test wagtail_wtr
 
 load-data:
 	python manage.py migrate
