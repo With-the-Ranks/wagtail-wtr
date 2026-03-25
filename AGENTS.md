@@ -344,6 +344,49 @@ make load-data                  # migrate + loaddata fixtures/demo.json + collec
     python manage.py test wagtail_wtr
     ```
 
+13. **Page models need explicit `template`**: Wagtail derives the default template
+    path as `<app_label>/<model_snake_case>.html`. Because app labels use the
+    `wagtail_wtr_` prefix (e.g. `wagtail_wtr_home`), Wagtail would look for
+    `wagtail_wtr_home/home_page.html`. This project stores all page templates
+    under `templates/pages/` instead. Every concrete page model **must** declare:
+    ```python
+    template = "pages/<model_name>.html"
+    ```
+    Without this, visiting any published page raises `TemplateDoesNotExist`.
+
+14. **Django `{# ... #}` comments do NOT suppress template tags on inner lines**:
+    Django's `{# comment #}` syntax only works reliably on a single line. When a
+    `{# ... #}` block spans multiple lines, Django still parses and compiles any
+    `{% ... %}` template tags that appear between the opening `{#` and closing `#}`.
+    This means a seemingly-commented-out `{% include "foo.html" %}` will still
+    execute, causing silent bugs or `RecursionError` if the included template is the
+    current one. The text between `{#` and `#}` also renders as visible output in
+    the browser. Always use `{% comment %}...{% endcomment %}` for multi-line
+    comments that contain example template code:
+    ```django
+    {# Short single-line comment — safe #}
+
+    {% comment %}
+    Multi-line comment. Any {% include %} or {% block %} tags here
+    are safely suppressed and will not render as visible text.
+    {% endcomment %}
+    ```
+
+15. **Site name in templates — use `{% wagtail_site %}`**: `settings.WAGTAIL_SITE_NAME`
+    is a Django settings variable used only by Wagtail's admin interface. It is NOT
+    accessible as `{{ settings.WAGTAIL_SITE_NAME }}` in templates — the Wagtail
+    settings context processor only exposes registered `BaseSiteSetting` models.
+    To get the site name in templates, use:
+    ```django
+    {% load wagtailcore_tags %}
+    {% wagtail_site as current_site %}
+    {{ current_site.site_name }}
+    ```
+    In `base.html`, call `{% wagtail_site as current_site %}` once and it will be
+    available in all `{% include %}`-d templates (header, footer, etc.) via context
+    inheritance. The value comes from the Wagtail `Site` model in the database
+    (set in Wagtail admin under Settings → Sites).
+
 ## Git Conventions
 
 - Branch from `main`. Descriptive branch names: `feature/signup-block`,

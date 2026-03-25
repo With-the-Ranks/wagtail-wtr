@@ -382,7 +382,7 @@ class AccordionItemBlock(StructBlock):
     reference it by dotted path.
 
     This is an internal sub-block rendered by accordion_block.html — it is
-    never rendered standalone via {% include_block %} and intentionally has
+    never rendered standalone via include_block and intentionally has
     no template in its Meta.
     """
 

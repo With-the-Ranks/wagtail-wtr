@@ -1,0 +1,27 @@
+{% load i18n %}
+{% comment %}
+Language switcher — only rendered when more than one language is active.
+Uses Django's built-in set_language view via a POST form.
+django.middleware.locale.LocaleMiddleware must be enabled.
+{% endcomment %}
+{% get_available_languages as languages %}
+{% get_current_language as current_lang %}
+{% if languages|length > 1 %}
+    <form action="{% url 'set_language' %}" method="post" class="mt-2">
+        {% csrf_token %}
+        <input type="hidden" name="next" value="{{ request.path }}">
+        <label for="language-select" class="sr-only">{% trans "Language" %}</label>
+        <select
+            id="language-select"
+            name="language"
+            onchange="this.form.submit()"
+            class="text-sm text-neutral-700 bg-light border border-neutral-300 rounded-md px-2 py-1 focus:outline-none focus:ring-2 focus:ring-primary-500"
+        >
+            {% for lang_code, lang_name in languages %}
+                <option value="{{ lang_code }}"{% if lang_code == current_lang %} selected{% endif %}>
+                    {{ lang_name }}
+                </option>
+            {% endfor %}
+        </select>
+    </form>
+{% endif %}

@@ -1,38 +1,124 @@
-{% load i18n wagtailcore_tags %}
+{% load i18n wagtailcore_tags wagtailimages_tags %}
 <header class="bg-light border-b border-neutral-200">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex items-center justify-between h-16">
-            {# Logo — replaced with BrandingSEOSettings.logo in Phase 1 #}
+
+            {% comment %}
+            Logo — BrandingSEOSettings.logo if set, otherwise site name text.
+            {% endcomment %}
             <a href="/" class="flex items-center shrink-0">
-                <span class="font-heading font-bold text-xl text-dark">{{ site.site_name }}</span>
+                {% with logo=settings.wagtail_wtr_wtrx.BrandingSEOSettings.logo %}
+                    {% if logo %}
+                        {% image logo max-160x60 as logo_img %}
+                        <img src="{{ logo_img.url }}"
+                             width="{{ logo_img.width }}"
+                             height="{{ logo_img.height }}"
+                             alt="{{ current_site.site_name }}"
+                             class="h-10 w-auto object-contain">
+                    {% else %}
+                        <span class="font-heading font-bold text-xl text-dark">{{ current_site.site_name }}</span>
+                    {% endif %}
+                {% endwith %}
             </a>
 
-            {# Desktop nav #}
-            <nav class="hidden md:flex items-center space-x-6" aria-label="{% trans 'Primary navigation' %}">
-                {# Navigation links rendered in Phase 4 when NavigationSettings exist #}
-            </nav>
+            {% comment %}
+            Desktop nav — NavigationSettings.primary_navigation links.
+            Each item is either an InternalLinkBlock or ExternalLinkBlock.
+            {% endcomment %}
+            {% with nav=settings.wagtail_wtr_wtrx.NavigationSettings %}
+                <nav class="hidden md:flex items-center space-x-6" aria-label="{% trans 'Primary navigation' %}">
+                    {% for item in nav.primary_navigation %}
+                        {% if item.block_type == "internal" %}
+                            <a href="{% pageurl item.value.page %}"
+                               class="text-sm font-semibold text-neutral-700 hover:text-dark transition-colors">
+                                {{ item.value.text }}
+                            </a>
+                        {% elif item.block_type == "external" %}
+                            <a href="{{ item.value.url }}"
+                               rel="noopener noreferrer"
+                               class="text-sm font-semibold text-neutral-700 hover:text-dark transition-colors">
+                                {{ item.value.text }}
+                            </a>
+                        {% endif %}
+                    {% endfor %}
+                </nav>
 
-            {# CTA button (desktop) + hamburger (mobile) #}
-            <div class="flex items-center gap-4">
-                <button
-                    type="button"
-                    class="md:hidden p-2 text-neutral-600 hover:text-dark"
-                    aria-label="{% trans 'Open menu' %}"
-                    aria-expanded="false"
-                    aria-controls="mobile-menu"
-                    data-mobile-menu-toggle
-                >
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-                    </svg>
-                </button>
-            </div>
+                {% comment %}
+                CTA button (desktop) + hamburger (mobile).
+                CTA is shown when cta_text is set and at least one link is set.
+                {% endcomment %}
+                <div class="flex items-center gap-4">
+                    {% if nav.cta_text and nav.cta_page or nav.cta_text and nav.cta_url %}
+                        {% if nav.cta_page %}
+                            <a href="{% pageurl nav.cta_page %}"
+                               class="hidden md:inline-block rounded-md bg-primary-600 px-4 py-2 text-sm font-semibold text-light transition hover:bg-primary-700">
+                                {{ nav.cta_text }}
+                            </a>
+                        {% elif nav.cta_url %}
+                            <a href="{{ nav.cta_url }}"
+                               rel="noopener noreferrer"
+                               class="hidden md:inline-block rounded-md bg-primary-600 px-4 py-2 text-sm font-semibold text-light transition hover:bg-primary-700">
+                                {{ nav.cta_text }}
+                            </a>
+                        {% endif %}
+                    {% endif %}
+
+                    <button
+                        type="button"
+                        class="md:hidden p-2 text-neutral-600 hover:text-dark"
+                        aria-label="{% trans 'Open menu' %}"
+                        aria-expanded="false"
+                        aria-controls="mobile-menu"
+                        data-mobile-menu-toggle
+                    >
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                        </svg>
+                    </button>
+                </div>
+            {% endwith %}
         </div>
     </div>
 
-    {# Mobile menu — wired up in Phase 4 #}
+    {% comment %}
+    Mobile menu — same nav links + CTA, revealed by mobile-menu.js.
+    {% endcomment %}
     <div id="mobile-menu" class="hidden md:hidden border-t border-neutral-200" aria-label="{% trans 'Mobile navigation' %}">
         <div class="px-4 py-4 space-y-2">
+            {% with nav=settings.wagtail_wtr_wtrx.NavigationSettings %}
+                {% for item in nav.primary_navigation %}
+                    {% if item.block_type == "internal" %}
+                        <a href="{% pageurl item.value.page %}"
+                           class="block py-2 text-sm font-semibold text-neutral-700 hover:text-dark transition-colors">
+                            {{ item.value.text }}
+                        </a>
+                    {% elif item.block_type == "external" %}
+                        <a href="{{ item.value.url }}"
+                           rel="noopener noreferrer"
+                           class="block py-2 text-sm font-semibold text-neutral-700 hover:text-dark transition-colors">
+                            {{ item.value.text }}
+                        </a>
+                    {% endif %}
+                {% endfor %}
+                {% if nav.cta_text and nav.cta_page or nav.cta_text and nav.cta_url %}
+                    <div class="pt-2 border-t border-neutral-200">
+                        {% if nav.cta_page %}
+                            <a href="{% pageurl nav.cta_page %}"
+                               class="block rounded-md bg-primary-600 px-4 py-2 text-center text-sm font-semibold text-light transition hover:bg-primary-700">
+                                {{ nav.cta_text }}
+                            </a>
+                        {% elif nav.cta_url %}
+                            <a href="{{ nav.cta_url }}"
+                               rel="noopener noreferrer"
+                               class="block rounded-md bg-primary-600 px-4 py-2 text-center text-sm font-semibold text-light transition hover:bg-primary-700">
+                                {{ nav.cta_text }}
+                            </a>
+                        {% endif %}
+                    </div>
+                {% endif %}
+            {% endwith %}
+            {% include "components/language_switcher.html" %}
+            {# Language switcher is intentionally mobile-only for MVP. Desktop variant deferred to Phase 5/6. #}
         </div>
     </div>
 </header>

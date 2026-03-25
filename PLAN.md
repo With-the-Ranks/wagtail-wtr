@@ -802,13 +802,17 @@ root), SiteSettings records, and optionally loads demo fixtures. Creating the
 - [x] Agent code review
 - [x] Human review + commit
 
-### Phase 4: Navigation & Footer
-- `navigation/header.html` -- logo, nav links, CTA button, mobile hamburger,
+### ✅ Phase 4: Navigation & Footer — COMPLETE
+
+- [x] `navigation/header.html` -- logo, nav links, CTA button, mobile hamburger,
   language switcher (`components/language_switcher.html`)
-- `navigation/footer.html` -- nav sections, social links, copyright
-- `static_src/javascript/components/mobile-menu.js`
-- Wire up settings in templates
-- `{% trans %}` on all nav/footer UI strings
+- [x] `navigation/footer.html` -- nav sections, social links, copyright
+- [x] `static_src/javascript/components/mobile-menu.js`
+- [x] Wire up settings in templates
+- [x] `{% trans %}` on all nav/footer UI strings
+- [x] `wtrx_tags.py` -- `social_icon` tag + `social_platform_label` filter
+- [x] `template` attribute added to all concrete page models
+- [x] Fix `{# ... #}` multi-line comment in `hero.html` → `{% comment %}...{% endcomment %}`
 
 ### Phase 5: Frontend Build & Styling
 - Tailwind config with full semantic token system

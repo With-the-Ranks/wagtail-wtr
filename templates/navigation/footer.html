@@ -1,9 +1,80 @@
-{% load i18n wagtailcore_tags %}
+{% load i18n wagtailcore_tags wtrx_tags %}
 <footer class="bg-dark text-neutral-200">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        {# Footer navigation sections rendered in Phase 4 #}
-        <div class="mt-8 border-t border-neutral-700 pt-8 text-sm text-neutral-400">
-            <p>&copy; {% now "Y" %} {{ site.site_name }}.</p>
+
+        {% comment %}
+        Footer navigation columns — FooterSettings.footer_navigation.
+        Each column is a FooterColumnBlock: heading + list of link blocks.
+        {% endcomment %}
+        {% with footer=settings.wagtail_wtr_wtrx.FooterSettings %}
+            {% if footer.footer_navigation %}
+                <div class="grid gap-8 sm:grid-cols-2 lg:grid-cols-4 mb-10">
+                    {% for column in footer.footer_navigation %}
+                        <div>
+                            {% if column.value.heading %}
+                                <h3 class="font-heading font-semibold text-light text-sm uppercase tracking-wider mb-4">
+                                    {{ column.value.heading }}
+                                </h3>
+                            {% endif %}
+                            <ul class="space-y-2">
+                                {% for link in column.value.links %}
+                                    <li>
+                                        {% if link.block_type == "internal" %}
+                                            <a href="{% pageurl link.value.page %}"
+                                               class="text-sm text-neutral-400 hover:text-light transition-colors">
+                                                {{ link.value.text }}
+                                            </a>
+                                        {% elif link.block_type == "external" %}
+                                            <a href="{{ link.value.url }}"
+                                               rel="noopener noreferrer"
+                                               class="text-sm text-neutral-400 hover:text-light transition-colors">
+                                                {{ link.value.text }}
+                                            </a>
+                                        {% endif %}
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        {% comment %}
+        Bottom bar: social links left, copyright right.
+        {% endcomment %}
+        <div class="border-t border-neutral-700 pt-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+
+            {% comment %}Social links — SocialSettings.social_links{% endcomment %}
+            {% with social=settings.wagtail_wtr_wtrx.SocialSettings %}
+                {% if social.social_links %}
+                    <div class="flex items-center gap-4">
+                        {% for item in social.social_links %}
+                            <a href="{{ item.value.url }}"
+                               rel="noopener noreferrer"
+                               aria-label="{{ item.value.platform|social_platform_label }}"
+                               class="text-neutral-400 hover:text-light transition-colors">
+                                {% social_icon item.value.platform %}
+                            </a>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div></div>
+                {% endif %}
+            {% endwith %}
+
+            {% comment %}Copyright — FooterSettings.copyright_text or fallback{% endcomment %}
+            {% with footer=settings.wagtail_wtr_wtrx.FooterSettings %}
+                <p class="text-sm text-neutral-400">
+                    {% if footer.copyright_text %}
+                        {{ footer.copyright_text }}
+                    {% else %}
+                        {% now "Y" as current_year %}
+                        {% blocktrans with year=current_year name=current_site.site_name %}&copy; {{ year }} {{ name }}.{% endblocktrans %}
+                    {% endif %}
+                </p>
+            {% endwith %}
+
         </div>
     </div>
 </footer>

@@ -20,6 +20,8 @@ class ContentPage(BasePage, HeroMixin):
     content that doesn't need automatic child-page listing.
     """
 
+    template = "pages/content_page.html"
+
     body = StreamField(
         BodyStreamBlock(),
         blank=True,
@@ -78,6 +80,8 @@ class IndexPage(BasePage, HeroMixin):
     all live, public child pages (any type), paginated at 12 per page. An
     optional StreamField body appears below the child listing.
     """
+
+    template = "pages/index_page.html"
 
     intro = RichTextField(
         blank=True,

@@ -16,6 +16,7 @@ urlpatterns = [
     path('admin/', include(wagtailadmin_urls)),
     path('documents/', include(wagtaildocs_urls)),
     path('sitemap.xml', sitemap, name='sitemap'),
+    path('i18n/', include('django.conf.urls.i18n')),
 ]
 
 urlpatterns += i18n_patterns(

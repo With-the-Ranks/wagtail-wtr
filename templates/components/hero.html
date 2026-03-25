@@ -1,23 +1,19 @@
 {% load i18n wagtailimages_tags wagtailcore_tags %}
-{#
+{% comment %}
   Shared hero component used by both HeroMixin (page-level) and HeroBlock (StreamField).
 
   Expects a `hero` dict (or object) with these keys/attributes:
     headline  — the heading text (str)
-    copy      — optional richtext value (rendered via |richtext or {% include_block %})
-    copy_is_block — True if copy should be rendered via {% include_block %}, False for |richtext
+    copy      — optional richtext value (rendered via |richtext or include_block
+    copy_is_block — True if copy should be rendered via include_block, False for |richtext
     image     — optional CustomImage instance
     link_text — optional CTA button label (str)
     link_page — optional internal Page
     link_url  — optional external URL (str)
 
-  Page templates using HeroMixin should pass:
-    {% include "components/hero.html" with hero=hero_context %}
-  where hero_context is built in the page's get_context() as a plain dict
-  with the above keys, normalised from the hero_* model fields.
-
+  Page templates pass `hero` via the template context (set in get_context()).
   HeroBlock.get_context() builds this dict automatically.
-#}
+{% endcomment %}
 <div class="relative overflow-hidden bg-dark">
 
     {% if hero.image %}
