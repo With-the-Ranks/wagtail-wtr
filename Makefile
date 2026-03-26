@@ -1,12 +1,13 @@
-.PHONY: help venv dev build build-prod watch migrate createsuperuser setup test load-data
+.PHONY: help venv dev build build-prod watch migrate createsuperuser setup test load-data build-js
 
 help:
 	@echo "Available commands:"
 	@echo "  make venv             - Create .venv and install all dependencies"
 	@echo "  make dev              - Run development server"
-	@echo "  make build            - Build CSS (development)"
-	@echo "  make build-prod       - Build CSS (production, minified)"
+	@echo "  make build            - Build CSS and JS (development)"
+	@echo "  make build-prod       - Build CSS and JS (production, minified)"
 	@echo "  make watch            - Watch and rebuild CSS on change"
+	@echo "  make build-js         - Copy JS source to static_compiled"
 	@echo "  make migrate          - Run database migrations"
 	@echo "  make createsuperuser  - Create admin user"
 	@echo "  make setup            - Interactive site setup"
@@ -23,10 +24,14 @@ venv:
 dev:
 	python manage.py runserver
 
-build:
+build-js:
+	rm -rf static_compiled/js/*
+	cp -r static_src/javascript/* static_compiled/js/
+
+build: build-js
 	npm run build
 
-build-prod:
+build-prod: build-js
 	npm run build:prod
 
 watch:
@@ -39,7 +44,7 @@ createsuperuser:
 	python manage.py createsuperuser
 
 setup:
-	python manage.py setup_site  # implemented in Phase 5 (not yet available)
+	python manage.py setup_site  # implemented in Phase 6 (not yet available)
 
 test:
 	python manage.py test wagtail_wtr

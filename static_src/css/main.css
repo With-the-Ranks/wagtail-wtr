@@ -6,8 +6,18 @@
     h1, h2, h3, h4, h5, h6 {
         font-family: theme('fontFamily.heading');
     }
-}
 
-@layer components {
-    /* Component classes go here */
+    /* Focus ring defaults — consistent accessible focus across all interactive elements */
+    [type='text']:focus,
+    [type='email']:focus,
+    [type='url']:focus,
+    [type='password']:focus,
+    [type='number']:focus,
+    [type='date']:focus,
+    [type='tel']:focus,
+    select:focus,
+    textarea:focus {
+        --tw-ring-color: theme('colors.primary.500');
+        border-color: theme('colors.primary.500');
+    }
 }

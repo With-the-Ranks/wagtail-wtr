@@ -14,13 +14,13 @@
         </div>
     {% endif %}
 
-    {#
+    {% comment %}
         The thank-you message is hidden by default and revealed by form-ajax.js
-        (Phase 5) on successful AJAX submission. Until Phase 5, the form submits
-        normally and Wagtail renders the thank-you page via its default routing.
-    #}
-    <div data-form-page
-         data-success-message="{{ page.thank_you_text|richtext|striptags }}">
+        on successful AJAX submission. If JavaScript is disabled, the form
+        submits normally and Wagtail renders the thank-you page via its
+        default routing.
+    {% endcomment %}
+    <div data-form-page>
 
         <div data-form-container>
             <form action="{{ page.url }}" method="post" novalidate>
@@ -31,13 +31,11 @@
                                class="block text-sm font-semibold text-dark mb-1">
                             {{ field.label }}
                             {% if field.field.required %}
-                                {# text-red-600: conventional error/danger colour; no semantic token defined yet (Phase 5) #}
-                                <span class="text-red-600" aria-hidden="true">*</span>
+                                <span class="text-error-600" aria-hidden="true">*</span>
                             {% endif %}
                         </label>
                         {% if field.errors %}
-                            {# text-red-600: conventional error/danger colour; no semantic token defined yet (Phase 5) #}
-                            <ul class="mb-1 text-sm text-red-600">
+                            <ul class="mb-1 text-sm text-error-600">
                                 {% for error in field.errors %}
                                     <li>{{ error }}</li>
                                 {% endfor %}

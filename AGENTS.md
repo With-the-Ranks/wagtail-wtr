@@ -101,13 +101,18 @@ Never hand-write migrations. Always use `makemigrations`.
 
 ```bash
 npm install                  # Install Node dependencies (once only)
-make build                   # Dev CSS build (Tailwind CLI)
-make build-prod              # Production CSS build (minified)
+make build                   # Dev build (CSS via Tailwind CLI + JS copy)
+make build-prod              # Production build (CSS minified + JS copy)
+make build-js                # Copy JS source to static_compiled/js/
 make watch                   # Watch mode (rebuilds CSS on change)
 ```
 
-`static_compiled/css/main.css` is committed to the repo so forked client sites
-have working CSS immediately without needing to run `npm install` and `make build`.
+`static_compiled/` is committed to the repo so forked client sites have working
+CSS and JS immediately without needing to run `npm install` and `make build`.
+
+JavaScript source lives in `static_src/javascript/` and is copied verbatim to
+`static_compiled/js/` during `make build`. JS uses ES module syntax and is loaded
+via `<script type="module">` in `base.html`. No bundler is needed.
 
 ### Docker
 
@@ -160,8 +165,10 @@ make load-data                  # migrate + loaddata fixtures/demo.json + collec
   by editors is translated via wagtail-localize — only hardcoded UI strings
   need `{% trans %}`.
 - **Tailwind**: Use semantic design tokens only. Never use raw color values.
-  - Correct: `bg-primary-600`, `font-heading`, `text-neutral-800`
-  - Wrong: `bg-blue-600`, `font-serif`, `text-gray-800`
+  - Correct: `bg-primary-600`, `font-heading`, `text-neutral-800`, `text-error-600`
+  - Wrong: `bg-blue-600`, `font-serif`, `text-gray-800`, `text-red-600`
+  - **Status colors**: Use `error-*`, `success-*`, `warning-*` tokens for
+    validation messages, alerts, and feedback — never raw red/green/yellow.
 - **Components**: Reusable UI lives in `templates/components/`. Block templates
   live in `templates/components/streamfield/blocks/`.
 - **Indentation**: 4 spaces for HTML. Use Wagtail template tags
@@ -178,6 +185,8 @@ make load-data                  # migrate + loaddata fixtures/demo.json + collec
 - Use `@tailwind base; @tailwind components; @tailwind utilities;` directives.
 - Built with Tailwind CLI (`make build` / `make build-prod` / `make watch`).
 - Output goes to `static_compiled/css/main.css` (committed to repo).
+- Plugins: `@tailwindcss/typography` (prose classes for richtext) and
+  `@tailwindcss/forms` (base form element styling). Registered in `tailwind.config.js`.
 - Minimize custom CSS. Prefer Tailwind utilities in templates.
 - If component classes are needed, define in `@layer components {}`.
 

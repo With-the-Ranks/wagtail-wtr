@@ -107,8 +107,9 @@ Visit [http://localhost:8000/](http://localhost:8000/) for the site and
 ```
 make venv             Create .venv and install all dependencies
 make dev              Run development server (localhost:8000)
-make build            Build CSS — development (Tailwind CLI)
-make build-prod       Build CSS — production (minified)
+make build            Build CSS + JS — development (Tailwind CLI + JS copy)
+make build-prod       Build CSS + JS — production (minified CSS + JS copy)
+make build-js         Copy JS source to static_compiled/js/
 make watch            Watch and rebuild CSS on file changes
 make migrate          Run database migrations
 make createsuperuser  Create admin user

@@ -119,6 +119,7 @@ wagtail-wtr/
 │   │   ├── main.js
 │   │   └── components/
 │   │       ├── mobile-menu.js
+│   │       ├── accordion.js         # Accordion toggle with aria-expanded
 │   │       └── form-ajax.js        # AJAX form submission for FormPage/SignupBlock
 │   └── css/
 │       └── main.css                # Tailwind directives + component styles
@@ -683,7 +684,7 @@ change `font-heading`, etc.
 
 ### Output
 `static_src/css/main.css` -> Tailwind CLI -> `static_compiled/css/main.css` (committed to repo)
-`static_src/javascript/` -> served directly (no bundling)
+`static_src/javascript/` -> copied to `static_compiled/js/` via `make build-js` (committed to repo)
 
 ---
 
@@ -719,6 +720,8 @@ dev = [
 
 ```
 tailwindcss
+@tailwindcss/typography
+@tailwindcss/forms
 ```
 
 ---
@@ -814,14 +817,28 @@ root), SiteSettings records, and optionally loads demo fixtures. Creating the
 - [x] `template` attribute added to all concrete page models
 - [x] Fix `{# ... #}` multi-line comment in `hero.html` → `{% comment %}...{% endcomment %}`
 
-### Phase 5: Frontend Build & Styling
-- Tailwind config with full semantic token system
-- `static_src/css/main.css` with Tailwind directives
-- Style all block templates with semantic Tailwind utilities
-- Style page templates, header, footer, hero
-- `static_src/javascript/components/form-ajax.js` for AJAX form submission
-- Build and commit `static_compiled/`
-- Responsive testing
+### 🔄 Phase 5: Frontend Build & Styling — IN PROGRESS
+- [x] `tailwind.config.js` with full semantic token system (primary, secondary,
+  accent, neutral + error, success, warning status tokens)
+- [x] `@tailwindcss/typography` and `@tailwindcss/forms` plugins installed and registered
+- [x] `static_src/css/main.css` with Tailwind directives and base layer customizations
+  (heading font family, form focus ring)
+- [x] JS delivery: `make build-js` copies `static_src/javascript/` to `static_compiled/js/`;
+  `make build` and `make build-prod` run JS copy + CSS build; `base.html` loads
+  JS via `<script type="module">`
+- [x] `static_src/javascript/components/accordion.js` — accordion toggle with
+  `data-accordion-toggle` / `data-accordion-content` / `aria-expanded`
+- [x] `static_src/javascript/components/form-ajax.js` — AJAX form submission for
+  FormPage (`[data-form-page]`) and SignupBlock wagtail_forms variant
+  (`[data-signup-block]`); fetches form HTML, handles submit, shows thank-you on success
+- [x] `main.js` updated to import and init Accordion + FormAjax components
+- [x] Templates updated: `text-red-600` → `text-error-600`; Phase 5 comments removed;
+  `signup_wagtail_forms_block.html` restructured with `<noscript>` fallback,
+  `[data-form-container]`, and `[data-thank-you]` for form-ajax.js
+- [x] `static_compiled/` rebuilt (CSS with typography/forms plugins + JS copied)
+- [ ] Responsive testing
+- [ ] Style all block templates with semantic Tailwind utilities (already done in Phase 4)
+- [ ] Style page templates, header, footer, hero (already done in Phase 4)
 
 ### Phase 6: Polish & Setup
 - `wtrx/wagtail_hooks.py` -- custom rich text features

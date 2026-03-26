@@ -7,24 +7,27 @@
                 {{ value.description|richtext }}
             </div>
         {% endif %}
-        {# Phase 5: form-ajax.js intercepts submit and posts to form_page.url via AJAX. #}
-        {# Phase 5 also replaces this fallback link with an actual inline <form> element. #}
         {% trans "Thank you for signing up!" as default_success_msg %}
         {% trans "Sign Up" as default_signup_text %}
         <div class="mt-8"
              data-signup-block
-             data-form-url="{{ value.form_page.url }}"
-             data-success-message="{{ value.success_message|default:default_success_msg }}">
-            <p class="text-sm text-neutral-500">
-                {% blocktrans with url=value.form_page.url %}
-                    Sign up form loads from <a href="{{ url }}" class="underline">{{ url }}</a>.
-                {% endblocktrans %}
-            </p>
-            <div class="mt-4">
-                <a href="{{ value.form_page.url }}"
-                   class="inline-block rounded-md bg-primary-600 px-6 py-2.5 font-heading font-semibold text-light transition hover:bg-primary-700">
-                    {{ value.button_text|default:default_signup_text }}
-                </a>
+             data-form-url="{{ value.form_page.url }}">
+            <noscript>
+                <p class="text-sm text-neutral-500">
+                    {% trans "JavaScript is required to load the sign up form." %}
+                </p>
+                <div class="mt-4">
+                    <a href="{{ value.form_page.url }}"
+                       class="inline-block rounded-md bg-primary-600 px-6 py-2.5 font-heading font-semibold text-light transition hover:bg-primary-700">
+                        {{ value.button_text|default:default_signup_text }}
+                    </a>
+                </div>
+            </noscript>
+            <div data-form-container>
+                <p class="text-sm text-neutral-500">{% trans "Loading form..." %}</p>
+            </div>
+            <div data-thank-you class="hidden">
+                <p class="text-neutral-700">{{ value.success_message|default:default_success_msg }}</p>
             </div>
         </div>
     </div>

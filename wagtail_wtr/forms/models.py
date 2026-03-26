@@ -1,7 +1,14 @@
 from django.db import models
+from django.http import JsonResponse
 from django.utils.translation import gettext_lazy as _
 from modelcluster.fields import ParentalKey
-from wagtail.admin.panels import FieldPanel, InlinePanel, MultiFieldPanel, TabbedInterface, ObjectList
+from wagtail.admin.panels import (
+    FieldPanel,
+    InlinePanel,
+    MultiFieldPanel,
+    TabbedInterface,
+    ObjectList,
+)
 from wagtail.contrib.forms.models import AbstractEmailForm, AbstractFormField
 from wagtail.fields import RichTextField
 
@@ -76,10 +83,12 @@ class FormPage(BasePage, AbstractEmailForm):
 
     promote_panels = BasePage.promote_panels
 
-    edit_handler = TabbedInterface([
-        ObjectList(content_panels, heading=_("Content")),
-        ObjectList(promote_panels, heading=_("Promote")),
-    ])
+    edit_handler = TabbedInterface(
+        [
+            ObjectList(content_panels, heading=_("Content")),
+            ObjectList(promote_panels, heading=_("Promote")),
+        ]
+    )
 
     parent_page_types = [
         "wagtail_wtr_home.HomePage",
@@ -108,3 +117,23 @@ class FormPage(BasePage, AbstractEmailForm):
             "link_url": None,
         }
         return ctx
+
+    def serve(self, request, *args, **kwargs):
+        if request.method == "POST":
+            form = self.get_form(
+                request.POST, request.FILES, page=self, user=request.user
+            )
+            if form.is_valid():
+                form_submission = self.process_form_submission(form)
+                return self.render_landing_page(request, form_submission)
+            elif request.headers.get("X-Requested-With") == "XMLHttpRequest":
+                errors = {
+                    field: [str(e) for e in errs] for field, errs in form.errors.items()
+                }
+                return JsonResponse({"success": False, "errors": errors}, status=400)
+        return super().serve(request, *args, **kwargs)
+
+    def render_landing_page(self, request, form_submission=None, *args, **kwargs):
+        if request.headers.get("X-Requested-With") == "XMLHttpRequest":
+            return JsonResponse({"success": True})
+        return super().render_landing_page(request, form_submission, *args, **kwargs)
