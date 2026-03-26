@@ -6,9 +6,11 @@ Block categories (in definition order):
             RawHTMLBlock, TableBlock
   Cards:    CardBlock, PersonCardBlock
   Layout:   AccordionItemBlock, CardGridBlock, AccordionBlock,
-            CalloutBlock, HeroBlock, SectionBlock
+            CalloutBlock, HeroBlock
   Actions:  DonateBlock, SignupWagtailFormsBlock, SignupActionNetworkBlock,
             SignupLinkBlock
+  Layout²:  SectionBlock  (defined after action blocks so its nested
+            StreamBlock can instantiate the action block classes)
 
 All blocks are assembled into BodyStreamBlock at the bottom of this file.
 """
@@ -560,56 +562,6 @@ class HeroBlock(StructBlock):
         template = "components/streamfield/blocks/hero_block.html"
 
 
-class SectionBlock(StructBlock):
-    """
-    A full-width page section with configurable background, padding, and content.
-
-    Content is a nested StreamBlock accepting all blocks except SectionBlock
-    itself (to prevent infinite nesting). No explicit heading field — editors
-    use an h2 TextBlock inside the content.
-
-    anchor_id enables deep-linking (e.g. #contact).
-    """
-
-    content = StreamBlock(
-        [
-            ("text", TextBlock()),
-            ("image", ImageBlock()),
-            ("video", VideoBlock()),
-            ("button", ButtonBlock()),
-            ("quote", QuoteBlock()),
-            ("raw_html", RawHTMLBlock()),
-            ("table", TableBlock()),
-            ("card_grid", CardGridBlock()),
-            ("accordion", AccordionBlock()),
-            ("callout", CalloutBlock()),
-        ],
-        label=_("Content"),
-    )
-    background = ChoiceBlock(
-        choices=SECTION_BACKGROUND_CHOICES,
-        default="light",
-        label=_("Background"),
-    )
-    padding = ChoiceBlock(
-        choices=SECTION_PADDING_CHOICES,
-        default="md",
-        label=_("Padding"),
-    )
-    anchor_id = CharBlock(
-        required=False,
-        label=_("Anchor ID"),
-        help_text=_(
-            "Optional. Adds an id attribute for deep-linking (e.g. 'contact' → #contact)."
-        ),
-    )
-
-    class Meta:
-        icon = "placeholder"
-        label = _("Section")
-        template = "components/streamfield/blocks/section_block.html"
-
-
 # ---------------------------------------------------------------------------
 # Action blocks
 # ---------------------------------------------------------------------------
@@ -781,6 +733,72 @@ class SignupLinkBlock(StructBlock):
         icon = "link"
         label = _("Sign Up (Link)")
         template = "components/streamfield/blocks/signup_link_block.html"
+
+
+# ---------------------------------------------------------------------------
+# Layout blocks continued — SectionBlock is defined here (after action blocks)
+# so its nested StreamBlock can instantiate DonateBlock and the signup classes.
+# ---------------------------------------------------------------------------
+
+
+class SectionBlock(StructBlock):
+    """
+    A full-width page section with configurable background, padding, and content.
+
+    Content is a nested StreamBlock accepting all blocks except SectionBlock
+    itself (to prevent infinite nesting). No explicit heading field — editors
+    use an h2 TextBlock inside the content. All action blocks (donate, signup
+    variants) are included so a section can be fully self-contained.
+
+    anchor_id enables deep-linking (e.g. #contact).
+    """
+
+    # Mirrors BodyStreamBlock exactly, minus ("section", SectionBlock())
+    # to prevent infinite nesting.
+    content = StreamBlock(
+        [
+            ("text", TextBlock()),
+            ("image", ImageBlock()),
+            ("video", VideoBlock()),
+            ("button", ButtonBlock()),
+            ("quote", QuoteBlock()),
+            ("raw_html", RawHTMLBlock()),
+            ("table", TableBlock()),
+            ("card", CardBlock()),
+            ("person_card", PersonCardBlock()),
+            ("card_grid", CardGridBlock()),
+            ("accordion", AccordionBlock()),
+            ("callout", CalloutBlock()),
+            ("hero", HeroBlock()),
+            ("donate", DonateBlock()),
+            ("signup_wagtail_forms", SignupWagtailFormsBlock()),
+            ("signup_action_network", SignupActionNetworkBlock()),
+            ("signup_link", SignupLinkBlock()),
+        ],
+        label=_("Content"),
+    )
+    background = ChoiceBlock(
+        choices=SECTION_BACKGROUND_CHOICES,
+        default="light",
+        label=_("Background"),
+    )
+    padding = ChoiceBlock(
+        choices=SECTION_PADDING_CHOICES,
+        default="md",
+        label=_("Padding"),
+    )
+    anchor_id = CharBlock(
+        required=False,
+        label=_("Anchor ID"),
+        help_text=_(
+            "Optional. Adds an id attribute for deep-linking (e.g. 'contact' → #contact)."
+        ),
+    )
+
+    class Meta:
+        icon = "placeholder"
+        label = _("Section")
+        template = "components/streamfield/blocks/section_block.html"
 
 
 # ---------------------------------------------------------------------------

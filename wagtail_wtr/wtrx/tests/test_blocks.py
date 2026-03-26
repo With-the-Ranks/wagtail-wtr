@@ -2,8 +2,8 @@
 Tests for StreamField blocks.
 
 Content blocks (ButtonBlock, VideoBlock), layout blocks (CalloutBlock,
-HeroBlock), and action blocks (SignupLinkBlock) are tested here with
-SimpleTestCase since their clean() methods don't require a database.
+HeroBlock, SectionBlock), and action blocks (SignupLinkBlock) are tested here
+with SimpleTestCase since their clean() methods don't require a database.
 
 DonateBlock, SignupWagtailFormsBlock, and SignupActionNetworkBlock have no
 custom clean() — their fields are validated by Wagtail's built-in block
@@ -17,6 +17,7 @@ from wagtail_wtr.wtrx.blocks import (
     ButtonBlock,
     CalloutBlock,
     HeroBlock,
+    SectionBlock,
     SignupLinkBlock,
     VideoBlock,
     _validate_at_most_one_link,
@@ -222,3 +223,41 @@ class TestSignupLinkBlockValidation(SimpleTestCase):
         value = block.to_python(self._raw())
         cleaned = block.clean(value)
         self.assertEqual(cleaned["button_text"], "")
+
+
+class TestSectionBlockStructure(SimpleTestCase):
+    """
+    SectionBlock.content must include all BodyStreamBlock block types except
+    'section' itself (to prevent infinite nesting).
+    """
+
+    EXPECTED_BLOCK_NAMES = {
+        "text",
+        "image",
+        "video",
+        "button",
+        "quote",
+        "raw_html",
+        "table",
+        "card",
+        "person_card",
+        "card_grid",
+        "accordion",
+        "callout",
+        "hero",
+        "donate",
+        "signup_wagtail_forms",
+        "signup_action_network",
+        "signup_link",
+    }
+
+    def test_content_block_names(self):
+        block = SectionBlock()
+        content_stream = block.declared_blocks["content"]
+        registered = set(content_stream.child_blocks.keys())
+        self.assertEqual(registered, self.EXPECTED_BLOCK_NAMES)
+
+    def test_no_self_nesting(self):
+        block = SectionBlock()
+        content_stream = block.declared_blocks["content"]
+        self.assertNotIn("section", content_stream.child_blocks)
