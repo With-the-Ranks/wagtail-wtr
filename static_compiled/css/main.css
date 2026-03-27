@@ -2,35 +2,35 @@
 @layer properties;
 @font-face {
   font-family: "GT America";
-  src: url("../fonts/fonts/GTAmerica-Regular.woff2") format("woff2"), url("../fonts/fonts/GTAmerica-Regular.woff") format("woff");
+  src: url("../fonts/GTAmerica-Regular.woff2") format("woff2"), url("../fonts/GTAmerica-Regular.woff") format("woff");
   font-weight: 400;
   font-style: normal;
   font-display: swap;
 }
 @font-face {
   font-family: "GT America";
-  src: url("../fonts/fonts/GTAmerica-Bold.woff2") format("woff2"), url("../fonts/fonts/GTAmerica-Bold.woff") format("woff");
+  src: url("../fonts/GTAmerica-Bold.woff2") format("woff2"), url("../fonts/GTAmerica-Bold.woff") format("woff");
   font-weight: 700;
   font-style: normal;
   font-display: swap;
 }
 @font-face {
   font-family: "GT America Condensed";
-  src: url("../fonts/fonts/GTAmerica-CondensedRegular.woff2") format("woff2"), url("../fonts/fonts/GTAmerica-CondensedRegular.woff") format("woff");
+  src: url("../fonts/GTAmerica-CondensedRegular.woff2") format("woff2"), url("../fonts/GTAmerica-CondensedRegular.woff") format("woff");
   font-weight: 400;
   font-style: normal;
   font-display: swap;
 }
 @font-face {
   font-family: "GT America Condensed";
-  src: url("../fonts/fonts/GTAmerica-CondensedBold.woff2") format("woff2"), url("../fonts/fonts/GTAmerica-CondensedBold.woff") format("woff");
+  src: url("../fonts/GTAmerica-CondensedBold.woff2") format("woff2"), url("../fonts/GTAmerica-CondensedBold.woff") format("woff");
   font-weight: 700;
   font-style: normal;
   font-display: swap;
 }
 @font-face {
   font-family: "GT America Mono";
-  src: url("../fonts/fonts/GTAmericaMono-Rg.woff2") format("woff2"), url("../fonts/fonts/GTAmericaMono-Rg.woff") format("woff");
+  src: url("../fonts/GTAmericaMono-Rg.woff2") format("woff2"), url("../fonts/GTAmericaMono-Rg.woff") format("woff");
   font-weight: 400;
   font-style: normal;
   font-display: swap;
@@ -133,7 +133,6 @@
   --radius-sm: 0.25rem;
   --radius-md: 0.375rem;
   --radius-lg: 0.5rem;
-  --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
   --aspect-video: 16 / 9;
   --default-transition-duration: 150ms;
   --default-transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
