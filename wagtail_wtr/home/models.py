@@ -25,16 +25,22 @@ class HomePage(BasePage, HeroMixin):
         use_json_field=True,
     )
 
-    content_panels = Page.content_panels + HeroMixin.hero_panels + [
-        FieldPanel("body"),
-    ]
+    content_panels = (
+        Page.content_panels
+        + HeroMixin.hero_panels
+        + [
+            FieldPanel("body"),
+        ]
+    )
 
     promote_panels = BasePage.promote_panels
 
-    edit_handler = TabbedInterface([
-        ObjectList(content_panels, heading=_("Content")),
-        ObjectList(promote_panels, heading=_("Promote")),
-    ])
+    edit_handler = TabbedInterface(
+        [
+            ObjectList(content_panels, heading=_("Content")),
+            ObjectList(promote_panels, heading=_("Promote")),
+        ]
+    )
 
     parent_page_types = ["wagtailcore.Page"]
     subpage_types = [
@@ -62,6 +68,7 @@ class HomePage(BasePage, HeroMixin):
             "copy": self.hero_copy,
             "copy_is_block": False,
             "image": self.hero_image,
+            "video": self.hero_video,
             "link_text": self.hero_link_text,
             "link_page": self.hero_link_page,
             "link_url": self.hero_link_url,

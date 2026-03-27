@@ -18,6 +18,7 @@ from wagtail_wtr.forms.models import FormPage
 # ContentPage
 # ---------------------------------------------------------------------------
 
+
 class TestContentPageParentSubpageTypes(WagtailPageTests):
     """ContentPage parent/subpage type constraints."""
 
@@ -72,9 +73,22 @@ class TestContentPageGetContext(TestCase):
         ctx = self._get_context(self.page)
         self.assertFalse(ctx["hero"]["copy_is_block"])
 
+    def test_hero_video_defaults_none(self):
+        ctx = self._get_context(self.page)
+        self.assertIsNone(ctx["hero"]["video"])
+
     def test_hero_dict_keys(self):
         ctx = self._get_context(self.page)
-        expected = {"headline", "copy", "copy_is_block", "image", "link_text", "link_page", "link_url"}
+        expected = {
+            "headline",
+            "copy",
+            "copy_is_block",
+            "image",
+            "video",
+            "link_text",
+            "link_page",
+            "link_url",
+        }
         self.assertEqual(set(ctx["hero"].keys()), expected)
 
 
@@ -89,6 +103,7 @@ class TestContentPageMeta(TestCase):
 # ---------------------------------------------------------------------------
 # IndexPage
 # ---------------------------------------------------------------------------
+
 
 class TestIndexPageParentSubpageTypes(WagtailPageTests):
     """IndexPage parent/subpage type constraints."""

@@ -78,13 +78,26 @@ class TestHomePageGetContext(TestCase):
         ctx = self._get_context(self.home)
         self.assertIsNone(ctx["hero"]["image"])
 
+    def test_hero_video_defaults_none(self):
+        ctx = self._get_context(self.home)
+        self.assertIsNone(ctx["hero"]["video"])
+
     def test_hero_link_page_defaults_none(self):
         ctx = self._get_context(self.home)
         self.assertIsNone(ctx["hero"]["link_page"])
 
     def test_hero_dict_has_all_required_keys(self):
         ctx = self._get_context(self.home)
-        required_keys = {"headline", "copy", "copy_is_block", "image", "link_text", "link_page", "link_url"}
+        required_keys = {
+            "headline",
+            "copy",
+            "copy_is_block",
+            "image",
+            "video",
+            "link_text",
+            "link_page",
+            "link_url",
+        }
         self.assertEqual(set(ctx["hero"].keys()), required_keys)
 
 
