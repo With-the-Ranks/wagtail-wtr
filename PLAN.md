@@ -469,7 +469,8 @@ class BasePage(Page):
 |---|---|---|
 | hero_headline | CharField | Optional. Overrides page title as displayed h1. |
 | hero_copy | RichTextField | Optional. Subtext below headline. |
-| hero_image | ForeignKey to CustomImage | Optional. Hero background/feature image. |
+| hero_image | ForeignKey to CustomImage | Optional. Hero background/feature image. Also used as video poster fallback. |
+| hero_video | ForeignKey to wagtailmedia.Media | Optional. When set, hero switches to two-column layout (text left, video right). |
 | hero_link_text | CharField | Optional. CTA button text. |
 | hero_link_page | ForeignKey to Page | Optional. CTA internal link. |
 | hero_link_url | URLField | Optional. CTA external link. |
@@ -628,14 +629,20 @@ base.html
 - h1: `hero.headline` — always set by `get_context()` (falls back to `page.title` there, not in template)
 - Subtext: `hero.copy` (rendered via `|richtext` filter when `hero.copy_is_block=False`)
 - Image: `hero.image`
+- Video: `hero.video` (wagtailmedia Media instance) — when set, switches to two-column layout
 - CTA button: `hero.link_text` + `hero.link_page`/`hero.link_url`
-- Same template used by all page types and by `HeroBlock` (mid-page)
+- Same template used by all page types and by `HeroBlock` (mid-page; video always None)
 
 **Context contract**: the template consumes a `hero` dict with keys:
-`headline`, `copy`, `copy_is_block`, `image`, `link_text`, `link_page`, `link_url`.
+`headline`, `copy`, `copy_is_block`, `image`, `video`, `link_text`, `link_page`, `link_url`.
 Both `HeroBlock.get_context()` (Phase 2) and `HeroMixin` page `get_context()`
 (Phase 3) MUST build this dict. For both, `copy_is_block=False` because `copy`
 is either a `RichTextBlock` value or a `RichTextField` string — both use `|richtext`.
+
+**Video layout**: when `hero.video` is present, the template renders a two-column
+responsive grid (text left/right-aligned on md+, video right). On mobile both
+columns are full-width, video below text. Background image overlay is suppressed.
+Poster fallback chain: wagtailmedia thumbnail → `hero.image` at `fill-1280x720` → no poster.
 
 HTML templates use standard Django template syntax. No special wrappers needed.
 

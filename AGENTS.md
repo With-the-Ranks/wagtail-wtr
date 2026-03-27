@@ -233,16 +233,25 @@ make load-data                  # migrate + loaddata fixtures/demo.json + collec
        "headline": str | None,       # displayed h1; falls back to page.title in template
        "copy": RichText | str | None,# supporting copy
        "copy_is_block": bool,        # False = use |richtext filter; True = use {% include_block %}
-       "image": CustomImage | None,  # hero image
+       "image": CustomImage | None,  # hero image (also video poster fallback)
+       "video": Media | None,        # wagtailmedia Media instance; triggers two-column layout
        "link_text": str | None,      # CTA button label
        "link_page": Page | None,     # CTA internal page link
        "link_url": str | None,       # CTA external URL
    }
    ```
    For `HeroBlock`: `content` is a `RichTextBlock`, so `copy_is_block=False`.
-   For `HeroMixin` pages (Phase 3): `hero_copy` is a `RichTextField`, so
+   `video` is always `None` for HeroBlock (StreamField hero does not support video).
+   For `HeroMixin` pages: `hero_copy` is a `RichTextField`, so
    `copy_is_block=False` there too. Set `copy_is_block=True` only if `copy` is
    a StreamField block value (not currently used anywhere).
+
+   **Video layout**: when `hero.video` is a wagtailmedia `Media` instance, the
+   template switches to a two-column responsive grid: text on the left
+   (right-aligned on `md:` and up), video on the right. On mobile both columns
+   are full-width with video below text. The background image overlay is hidden
+   when a video is present. Poster fallback chain: wagtailmedia thumbnail →
+   `hero.image` rendered at `fill-1280x720` → no poster.
 8. **wtrx/ extraction readiness**: Keep `wtrx/` structured as if it will become
    a standalone pip package. Concrete models (CustomImage, settings models) will
    ship with their own migrations when extracted. Abstract models (BasePage,

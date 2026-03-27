@@ -113,6 +113,7 @@ class FormPage(BasePage, AbstractEmailForm):
             "copy": None,
             "copy_is_block": False,
             "image": None,
+            "video": None,
             "link_text": None,
             "link_page": None,
             "link_url": None,

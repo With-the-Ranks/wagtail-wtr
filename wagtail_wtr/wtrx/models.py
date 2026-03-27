@@ -3,6 +3,7 @@ from django.utils.translation import gettext_lazy as _
 from wagtail.admin.panels import FieldPanel, MultiFieldPanel
 from wagtail.fields import RichTextField
 from wagtail.models import Page
+from wagtailmedia.edit_handlers import MediaChooserPanel
 
 from .constants import RICHTEXT_FEATURES_HERO
 from .images import CustomImage, CustomRendition  # noqa: F401 — register with Django ORM
@@ -70,7 +71,8 @@ class HeroMixin(models.Model):
     Fields:
     - hero_headline: optional override for the page title as the displayed h1
     - hero_copy: optional subtext below the headline
-    - hero_image: optional background/feature image
+    - hero_image: optional background/feature image (also used as video poster fallback)
+    - hero_video: optional video; switches hero to two-column text-left / video-right layout
     - hero_link_text + hero_link_page / hero_link_url: optional CTA button
 
     Use: include `components/hero.html` in the page template.
@@ -100,7 +102,24 @@ class HeroMixin(models.Model):
         on_delete=models.SET_NULL,
         related_name="+",
         verbose_name=_("hero image"),
-        help_text=_("Optional hero background or feature image."),
+        help_text=_(
+            "Optional hero background or feature image. Also used as the video poster if no thumbnail is set on the video."
+        ),
+    )
+    hero_video = models.ForeignKey(
+        "wagtailmedia.Media",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="+",
+        limit_choices_to={"type": "video"},
+        verbose_name=_("hero video"),
+        help_text=_(
+            "Optional video displayed in the hero. When set, the layout switches to "
+            "two columns: text on the left, video on the right. "
+            "Upload a thumbnail on the video in the media library to use as a poster frame; "
+            "falls back to the hero image above if no thumbnail is set."
+        ),
     )
     hero_link_text = models.CharField(
         max_length=100,
@@ -129,6 +148,7 @@ class HeroMixin(models.Model):
                 FieldPanel("hero_headline"),
                 FieldPanel("hero_copy"),
                 FieldPanel("hero_image"),
+                MediaChooserPanel("hero_video", media_type="video"),
                 FieldPanel("hero_link_text"),
                 FieldPanel("hero_link_page"),
                 FieldPanel("hero_link_url"),

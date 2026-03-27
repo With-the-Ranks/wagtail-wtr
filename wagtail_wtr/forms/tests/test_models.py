@@ -73,6 +73,10 @@ class TestFormPageGetContext(TestCase):
         ctx = self._get_context(self.form_page)
         self.assertIsNone(ctx["hero"]["image"])
 
+    def test_hero_video_is_none(self):
+        ctx = self._get_context(self.form_page)
+        self.assertIsNone(ctx["hero"]["video"])
+
     def test_hero_link_page_is_none(self):
         ctx = self._get_context(self.form_page)
         self.assertIsNone(ctx["hero"]["link_page"])
@@ -87,7 +91,16 @@ class TestFormPageGetContext(TestCase):
 
     def test_hero_dict_has_all_required_keys(self):
         ctx = self._get_context(self.form_page)
-        expected = {"headline", "copy", "copy_is_block", "image", "link_text", "link_page", "link_url"}
+        expected = {
+            "headline",
+            "copy",
+            "copy_is_block",
+            "image",
+            "video",
+            "link_text",
+            "link_page",
+            "link_url",
+        }
         self.assertEqual(set(ctx["hero"].keys()), expected)
 
 
@@ -100,6 +113,7 @@ class TestFormFieldParentalKey(TestCase):
 
     def test_parental_key_to_form_page(self):
         from modelcluster.fields import ParentalKey
+
         field = FormField._meta.get_field("page")
         self.assertIsInstance(field, ParentalKey)
         self.assertEqual(field.related_model, FormPage)
@@ -117,10 +131,7 @@ class TestFormPageContentPanels(TestCase):
     """FormPage.content_panels must include email notification fields."""
 
     def test_content_panels_include_to_address(self):
-        panel_fields = [
-            getattr(p, "field_name", None)
-            for p in FormPage.content_panels
-        ]
+        panel_fields = [getattr(p, "field_name", None) for p in FormPage.content_panels]
         # to_address is nested in a MultiFieldPanel — walk all panels
         all_fields = []
 

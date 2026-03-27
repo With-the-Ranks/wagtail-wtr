@@ -543,6 +543,7 @@ class HeroBlock(StructBlock):
             "copy": value.get("content"),
             "copy_is_block": False,
             "image": value.get("image"),
+            "video": None,  # HeroBlock does not support video; key kept for template contract
             "link_text": value.get("link_text"),
             "link_page": value.get("link_page"),
             "link_url": value.get("link_url"),
