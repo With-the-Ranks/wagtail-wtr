@@ -31,8 +31,8 @@ build-js:
 	cp -r static_src/javascript/* static_compiled/js/
 
 build-fonts:
-	mkdir -p static_compiled/fonts/fonts
-	cp static_src/fonts/fonts/*.woff* static_compiled/fonts/fonts/
+	mkdir -p static_compiled/fonts
+	cp -r static_src/fonts static_compiled/fonts
 
 build: build-js build-fonts
 	npm run build
