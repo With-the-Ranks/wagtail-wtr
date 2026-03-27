@@ -123,6 +123,73 @@ have customised your brand colors. Resolve by keeping your `@theme {}` block and
 accepting upstream additions (e.g. new `[data-theme]` presets) from the merge.
 After merging, run `make build` to regenerate `static_compiled/` from your local `theme.css`.
 
+### 5. Contributing changes back upstream
+
+If you build something reusable — a new block, a base model improvement, a
+bug fix — you can contribute it back to `wagtail-wtr` via a pull request.
+
+**Rule of thumb**: only code in `wagtail_wtr/wtrx/`, `templates/`, and shared
+`static_src/` belongs upstream. Brand colors, site-specific page models, and
+fork-specific configuration stay on your fork.
+
+#### Step-by-step
+
+1. **Identify the commit(s) to contribute.** Your fork's `main` may contain
+   site-specific commits mixed in with reusable work. Use `git log --oneline`
+   to find the relevant commit SHA(s).
+
+2. **Create a feature branch off upstream `main`:**
+
+   ```bash
+   git fetch upstream
+   git checkout -b feature/my-feature upstream/main
+   ```
+
+3. **Cherry-pick the reusable commit(s) onto the branch:**
+
+   ```bash
+   git cherry-pick <sha>
+   ```
+
+   If the commit bundles site-specific changes with reusable ones, split it
+   using `git cherry-pick --no-commit <sha>` (applies the diff without
+   committing), then `git reset HEAD` to unstage everything, then `git add -p`
+   to selectively stage only the reusable hunks before committing.
+   Alternatively, reconstruct the diff manually on the new branch.
+
+4. **Push the branch to your fork (origin) and open a PR targeting upstream:**
+
+   ```bash
+   git push origin feature/my-feature
+   ```
+
+   Then open a PR on GitHub:
+   - Base repository: `With-the-Ranks/wagtail-wtr`, base branch: `main`
+   - Head repository: your fork, head branch: `feature/my-feature`
+
+   GitHub shows a **"compare across forks"** link on the upstream repo's
+   Pull Requests page. The direct URL pattern is:
+   ```
+   https://github.com/With-the-Ranks/wagtail-wtr/compare/main...<yourorg>:feature/my-feature
+   ```
+
+5. **After the PR is merged**, rebase your fork's `main` onto upstream so the
+   duplicate commit is cleanly dropped:
+
+   ```bash
+   git fetch upstream
+   git checkout main
+   git rebase upstream/main
+   git push origin main --force-with-lease
+   ```
+
+   If the upstream maintainer merged the PR without changes, Git detects the
+   equivalent patch and skips it automatically. If the commit was amended or
+   squash-merged upstream, you may see a small conflict — resolve it with
+   `git rebase --skip` to drop the duplicate. After the rebase your fork's
+   `main` should be ahead by only your site-specific commits and 0 commits
+   behind upstream.
+
 ---
 
 ## What to customize
