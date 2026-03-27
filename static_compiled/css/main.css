@@ -1,14 +1,54 @@
 /*! tailwindcss v4.2.2 | MIT License | https://tailwindcss.com */
 @layer properties;
+@font-face {
+  font-family: "GT America";
+  src: url("../fonts/fonts/GTAmerica-Regular.woff2") format("woff2"), url("../fonts/fonts/GTAmerica-Regular.woff") format("woff");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "GT America";
+  src: url("../fonts/fonts/GTAmerica-Bold.woff2") format("woff2"), url("../fonts/fonts/GTAmerica-Bold.woff") format("woff");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "GT America Condensed";
+  src: url("../fonts/fonts/GTAmerica-CondensedRegular.woff2") format("woff2"), url("../fonts/fonts/GTAmerica-CondensedRegular.woff") format("woff");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "GT America Condensed";
+  src: url("../fonts/fonts/GTAmerica-CondensedBold.woff2") format("woff2"), url("../fonts/fonts/GTAmerica-CondensedBold.woff") format("woff");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "GT America Mono";
+  src: url("../fonts/fonts/GTAmericaMono-Rg.woff2") format("woff2"), url("../fonts/fonts/GTAmericaMono-Rg.woff") format("woff");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
 :root, :host {
   --color-light: #ffffff;
   --color-dark: #010726;
-  --color-primary: #22FFA5;
+  --color-cloud: #f5fafc;
+  --color-brand-yellow: #e3fa6a;
+  --color-brand-grapefruit: #ff7556;
+  --color-brand-bright-blue: #00ffec;
+  --color-brand-light-green: #22ffa5;
+  --color-primary: #22ffa5;
   --color-primary-50: #f0fff8;
   --color-primary-100: #ccffe9;
   --color-primary-200: #99ffd4;
   --color-primary-300: #5cffbb;
-  --color-primary-400: #22FFA5;
+  --color-primary-400: #22ffa5;
   --color-primary-500: #00e88d;
   --color-primary-600: #00c274;
   --color-primary-700: #009659;
@@ -21,7 +61,7 @@
   --color-secondary-300: #9e7fff;
   --color-secondary-400: #7c52f5;
   --color-secondary-500: #5f2ee8;
-  --color-secondary-600: #3E08C1;
+  --color-secondary-600: #3e08c1;
   --color-secondary-700: #3006a0;
   --color-secondary-800: #22047a;
   --color-secondary-900: #150256;
@@ -30,7 +70,7 @@
   --color-accent-100: #ffe5de;
   --color-accent-200: #ffcabd;
   --color-accent-300: #ffa48d;
-  --color-accent-400: #FF7556;
+  --color-accent-400: #ff7556;
   --color-accent-500: #f95330;
   --color-accent-600: #e03415;
   --color-accent-700: #bc2510;
@@ -49,13 +89,13 @@
   --color-error-600: #dc2626;
   --color-success-600: #16a34a;
   --color-warning-600: #d97706;
-  --font-heading: system-ui, sans-serif;
-  --font-body: system-ui, sans-serif;
+  --font-heading: "Alegreya", Georgia, serif;
+  --font-body: "GT America", system-ui, sans-serif;
+  --font-mono: "GT America Mono", ui-monospace, monospace;
+  --font-hero: "Alegreya", Georgia, serif;
   --font-sans: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji",
       "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
   --font-serif: ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
-  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
-      "Courier New", monospace;
   --color-red-600: oklch(57.7% 0.245 27.325);
   --color-blue-600: oklch(54.6% 0.245 262.881);
   --color-gray-200: oklch(92.8% 0.006 264.531);
@@ -99,6 +139,38 @@
   --default-transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
   --default-font-family: var(--font-sans);
   --default-mono-font-family: var(--font-mono);
+}
+.wtr-hero h1 {
+  font-family: var(--font-hero);
+  font-size: clamp(3rem, 8vw, 5rem);
+  font-weight: 800;
+  line-height: 100%;
+  color: var(--color-cloud);
+  text-align: right;
+}
+.wtr-hero-copy, .wtr-hero-copy p {
+  font-family: "GT America", system-ui, sans-serif;
+  font-size: 1.875rem;
+  font-weight: 700;
+  line-height: 142.9%;
+  color: var(--color-cloud);
+  text-align: right;
+}
+.wtr-card-grid > .wtr-card:nth-child(4n+1) {
+  background-color: var(--color-brand-yellow);
+}
+.wtr-card-grid > .wtr-card:nth-child(4n+2) {
+  background-color: var(--color-brand-grapefruit);
+}
+.wtr-card-grid > .wtr-card:nth-child(4n+3) {
+  background-color: var(--color-brand-bright-blue);
+}
+.wtr-card-grid > .wtr-card:nth-child(4n+4) {
+  background-color: var(--color-brand-light-green);
+}
+.wtr-card-grid > .wtr-card {
+  box-shadow: none;
+  border: 6px solid #000;
 }
 @layer theme, base, components, utilities;
 @layer theme;
@@ -1023,6 +1095,19 @@
   .overflow-x-auto {
     overflow-x: auto;
   }
+  .wtr-btn {
+    text-align: center;
+    font-family: var(--font-body);
+    font-size: 1.025rem;
+    font-weight: 700;
+    line-height: 140%;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    border-radius: 0;
+    border: 2px solid var(--color-dark);
+    box-shadow: 4px 4px 0 0 #000;
+    padding: 0.75rem 1rem;
+  }
   .rounded {
     border-radius: 0.25rem;
   }
@@ -1616,12 +1701,6 @@
       padding-block: calc(var(--spacing) * 28);
     }
   }
-  .sm\:text-5xl {
-    @media (width >= 40rem) {
-      font-size: var(--text-5xl);
-      line-height: var(--tw-leading, var(--text-5xl--line-height));
-    }
-  }
   .md\:right-0 {
     @media (width >= 48rem) {
       right: calc(var(--spacing) * 0);
@@ -1662,11 +1741,6 @@
       align-items: center;
     }
   }
-  .md\:text-right {
-    @media (width >= 48rem) {
-      text-align: right;
-    }
-  }
   .md\:text-3xl {
     @media (width >= 48rem) {
       font-size: var(--text-3xl);
@@ -1686,12 +1760,6 @@
   .lg\:px-8 {
     @media (width >= 64rem) {
       padding-inline: calc(var(--spacing) * 8);
-    }
-  }
-  .lg\:text-6xl {
-    @media (width >= 64rem) {
-      font-size: var(--text-6xl);
-      line-height: var(--tw-leading, var(--text-6xl--line-height));
     }
   }
   .\[\&\>iframe\]\:absolute {

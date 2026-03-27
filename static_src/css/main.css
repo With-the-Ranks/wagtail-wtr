@@ -52,6 +52,17 @@
     color: var(--color-light);
 }
 
+@utility wtr-btn-nav {
+    border-radius: 0;
+    border-color: var(--color-dark);
+    box-shadow: 4px 4px 0px 0px black;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0.75rem 1.5rem;
+    font-size: 1rem;
+    font-weight: 700;
+}
+
 /*
   The default border color has changed to `currentcolor` in Tailwind CSS v4,
   so we've added these compatibility styles to make sure everything still
