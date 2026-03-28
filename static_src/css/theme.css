@@ -1,3 +1,6 @@
+/* Google Fonts — Alegreya (heading font) */
+@import url("https://fonts.googleapis.com/css2?family=Alegreya:ital,wght@0,400..900;1,400..900&display=swap");
+
 /*
  * ============================================================
  * SITE THEME
@@ -10,8 +13,10 @@
  * To re-theme a fork:
  *   1. Replace the --color-primary-* scale with your brand color.
  *   2. Replace --color-secondary-* and --color-accent-* as needed.
- *   3. Update --font-heading and --font-body (add @font-face or
- *      a Google Fonts <link> in base.html as needed).
+ *   3. Update --font-heading and --font-body. For Google Fonts, add
+ *      @import url("https://fonts.googleapis.com/...") at the top of
+ *      theme.css — do NOT shadow base.html with a <link> tag, as that
+ *      causes infinite template recursion (DIRS is checked before APP_DIRS).
  *   4. Run: make build
  *
  * Status colors (error, success, warning) are intentionally
@@ -102,9 +107,6 @@
   --color-brand-light-purple: #ccbdff;
   --color-brand-light-green: #22ffa5;
   --color-brand-blurple: #3e08c1;
-
-  /* Primary alias — points to the brand anchor for wtr-btn and single-token re-theming */
-  --color-primary: #22FFA5;
 
   /* Primary brand color — mint green (#22FFA5)
    * Scale generated from the brand anchor:
