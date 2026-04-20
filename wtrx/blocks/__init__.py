@@ -676,6 +676,7 @@ class DonateBlock(StructBlock):
     """
 
     heading = CharBlock(
+        required=False,
         label=_("Heading"),
         help_text=_("Donation section heading."),
     )
@@ -725,6 +726,7 @@ class SignupWagtailFormsBlock(StructBlock):
     """
 
     heading = CharBlock(
+        required=False,
         label=_("Heading"),
         help_text=_("Signup section heading."),
     )
@@ -815,6 +817,7 @@ class SignupActionNetworkBlock(StructBlock):
     """
 
     heading = CharBlock(
+        required=False,
         label=_("Heading"),
         help_text=_("Signup section heading."),
     )
@@ -837,6 +840,13 @@ class SignupActionNetworkBlock(StructBlock):
         help_text=_(
             "Optional. Replaces Action Network's default thank-you screen "
             "after a successful signup."
+        ),
+    )
+    anchor_id = CharBlock(
+        required=False,
+        label=_("Anchor ID"),
+        help_text=_(
+            "Optional. Adds an id attribute for deep-linking (e.g. 'contact' → #contact)."
         ),
     )
 
@@ -884,6 +894,7 @@ class SignupLinkBlock(StructBlock):
     """
 
     heading = CharBlock(
+        required=False,
         label=_("Heading"),
         help_text=_("Signup section heading."),
     )
@@ -902,6 +913,13 @@ class SignupLinkBlock(StructBlock):
     external_url = URLBlock(
         label=_("External URL"),
         help_text=_("The external signup URL."),
+    )
+    anchor_id = CharBlock(
+        required=False,
+        label=_("Anchor ID"),
+        help_text=_(
+            "Optional. Adds an id attribute for deep-linking (e.g. 'contact' → #contact)."
+        ),
     )
 
     class Meta:

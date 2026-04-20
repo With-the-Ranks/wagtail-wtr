@@ -29,6 +29,10 @@ urlpatterns = [
 urlpatterns += i18n_patterns(
     path("search/", search_views.search, name="search"),
     path("", include(wagtail_urls)),
+    # English (the default language) is served at / without a language prefix.
+    # Non-default languages added by forks are still prefixed (e.g. /es/).
+    # LocaleMiddleware handles language detection; see base.py LANGUAGES setting.
+    prefix_default_language=False,
 )
 
 if settings.DEBUG:

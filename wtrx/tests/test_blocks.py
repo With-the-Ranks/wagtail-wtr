@@ -273,7 +273,7 @@ class TestHeroBlockValidation(SimpleTestCase):
 
 
 class TestSignupLinkBlockValidation(SimpleTestCase):
-    """SignupLinkBlock requires heading and external_url."""
+    """SignupLinkBlock requires external_url; heading and anchor_id are optional."""
 
     def _raw(self, heading="Sign Up", external_url="https://example.com"):
         return {
@@ -281,6 +281,7 @@ class TestSignupLinkBlockValidation(SimpleTestCase):
             "description": "",
             "button_text": "",
             "external_url": external_url,
+            "anchor_id": "",
         }
 
     def test_valid(self):
@@ -289,11 +290,12 @@ class TestSignupLinkBlockValidation(SimpleTestCase):
         cleaned = block.clean(value)
         self.assertEqual(cleaned["external_url"], "https://example.com")
 
-    def test_heading_required(self):
+    def test_heading_optional(self):
+        """heading is now optional — omitting it must not raise."""
         block = SignupLinkBlock()
         value = block.to_python(self._raw(heading=""))
-        with self.assertRaises(ValidationError):
-            block.clean(value)
+        cleaned = block.clean(value)
+        self.assertEqual(cleaned["heading"], "")
 
     def test_external_url_required(self):
         block = SignupLinkBlock()
@@ -306,6 +308,15 @@ class TestSignupLinkBlockValidation(SimpleTestCase):
         value = block.to_python(self._raw())
         cleaned = block.clean(value)
         self.assertEqual(cleaned["button_text"], "")
+
+    def test_anchor_id_optional(self):
+        block = SignupLinkBlock()
+        self.assertFalse(block.declared_blocks["anchor_id"].required)
+
+    def test_has_expected_fields(self):
+        block = SignupLinkBlock()
+        expected = {"heading", "description", "button_text", "external_url", "anchor_id"}
+        self.assertEqual(set(block.declared_blocks.keys()), expected)
 
 
 class TestSectionBlockStructure(SimpleTestCase):
@@ -503,6 +514,7 @@ class TestSignupActionNetworkBlockValidation(SimpleTestCase):
             "description": "",
             "action_url": action_url,
             "success_message": "",
+            "anchor_id": "",
         }
 
     def test_valid_url_accepted(self):
@@ -539,11 +551,12 @@ class TestSignupActionNetworkBlockValidation(SimpleTestCase):
         with self.assertRaises(ValidationError):
             block.clean(value)
 
-    def test_heading_required(self):
+    def test_heading_optional(self):
+        """heading is now optional — omitting it must not raise."""
         block = SignupActionNetworkBlock()
         value = block.to_python(self._raw(heading=""))
-        with self.assertRaises(ValidationError):
-            block.clean(value)
+        cleaned = block.clean(value)
+        self.assertEqual(cleaned["heading"], "")
 
     def test_action_url_required(self):
         block = SignupActionNetworkBlock()
@@ -558,25 +571,31 @@ class TestSignupActionNetworkBlockValidation(SimpleTestCase):
         # SuccessMessageBlock (StreamBlock) — empty list → falsy StreamValue
         self.assertFalse(cleaned["success_message"])
 
+    def test_anchor_id_optional(self):
+        block = SignupActionNetworkBlock()
+        self.assertFalse(block.declared_blocks["anchor_id"].required)
+
     def test_has_expected_fields(self):
         block = SignupActionNetworkBlock()
-        expected = {"heading", "description", "action_url", "success_message"}
+        expected = {"heading", "description", "action_url", "success_message", "anchor_id"}
         self.assertEqual(set(block.declared_blocks.keys()), expected)
 
 
 class TestSignupActionNetworkBlockContext(SimpleTestCase):
     """SignupActionNetworkBlock.get_context() extracts action_type and slug."""
 
+    def _raw(self, action_url="https://actionnetwork.org/forms/join-30", success_message=""):
+        return {
+            "heading": "Join",
+            "description": "",
+            "action_url": action_url,
+            "success_message": success_message,
+            "anchor_id": "",
+        }
+
     def test_context_extracts_type_and_slug(self):
         block = SignupActionNetworkBlock()
-        value = block.to_python(
-            {
-                "heading": "Join",
-                "description": "",
-                "action_url": "https://actionnetwork.org/forms/join-30",
-                "success_message": "",
-            }
-        )
+        value = block.to_python(self._raw())
         ctx = block.get_context(value)
         self.assertEqual(ctx["action_type"], "form")
         self.assertEqual(ctx["slug"], "join-30")
@@ -584,12 +603,7 @@ class TestSignupActionNetworkBlockContext(SimpleTestCase):
     def test_context_with_complex_slug(self):
         block = SignupActionNetworkBlock()
         value = block.to_python(
-            {
-                "heading": "Join",
-                "description": "",
-                "action_url": "https://actionnetwork.org/forms/my-great-campaign-2026?source=widget",
-                "success_message": "",
-            }
+            self._raw(action_url="https://actionnetwork.org/forms/my-great-campaign-2026?source=widget")
         )
         ctx = block.get_context(value)
         self.assertEqual(ctx["slug"], "my-great-campaign-2026")
@@ -597,28 +611,18 @@ class TestSignupActionNetworkBlockContext(SimpleTestCase):
     def test_context_passes_success_message(self):
         block = SignupActionNetworkBlock()
         value = block.to_python(
-            {
-                "heading": "Join",
-                "description": "",
-                "action_url": "https://actionnetwork.org/forms/join-30",
-                "success_message": [
+            self._raw(
+                success_message=[
                     {"type": "text", "value": "<p>Thanks for signing up!</p>"}
-                ],
-            }
+                ]
+            )
         )
         ctx = block.get_context(value)
         self.assertTrue(ctx["success_message"])
 
     def test_context_without_success_message(self):
         block = SignupActionNetworkBlock()
-        value = block.to_python(
-            {
-                "heading": "Join",
-                "description": "",
-                "action_url": "https://actionnetwork.org/forms/join-30",
-                "success_message": [],
-            }
-        )
+        value = block.to_python(self._raw(success_message=[]))
         ctx = block.get_context(value)
         # Empty StreamValue is falsy
         self.assertFalse(ctx["success_message"])
@@ -626,14 +630,7 @@ class TestSignupActionNetworkBlockContext(SimpleTestCase):
     def test_context_empty_url_degrades_gracefully(self):
         """When action_url is empty, context should have empty strings."""
         block = SignupActionNetworkBlock()
-        value = block.to_python(
-            {
-                "heading": "Join",
-                "description": "",
-                "action_url": "",
-                "success_message": "",
-            }
-        )
+        value = block.to_python(self._raw(action_url=""))
         ctx = block.get_context(value)
         self.assertEqual(ctx["action_type"], "")
         self.assertEqual(ctx["slug"], "")
