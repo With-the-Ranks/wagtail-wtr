@@ -24,6 +24,9 @@ media/
 local_settings.py
 wagtail_wtr/settings/local.py
 
+# Provisioning credentials (written by bin/provision.sh — never commit)
+.env.provision.*
+
 # Node
 node_modules/
 npm-debug.log*
@@ -34,9 +37,6 @@ static_compiled/css/main.css
 static_compiled/js/
 static_compiled/fonts/
 static_compiled/images/
-
-# Provisioning credentials (written by bin/provision.sh — never commit)
-.env.provision.*
 
 # Large media files — never commit video/audio to the repo
 *.mkv

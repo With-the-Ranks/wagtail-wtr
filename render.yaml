@@ -31,12 +31,18 @@ services:
         # tokens, and CSRF tokens are immediately invalidated.
       - key: DJANGO_SETTINGS_MODULE
         value: wagtail_wtr.settings.production
+      # Render injects PORT and forwards inbound traffic to this port.
+      # Must match the port: field above and what gunicorn binds to.
+      - key: PORT
+        value: "8000"
       # Set to your Render hostname and any custom domains.
       # Example: mysite.onrender.com,mysite.org
       - key: ALLOWED_HOSTS
+        sync: false
       # Required: the full public URL used by the Wagtail admin (no trailing slash).
       # Example: https://mysite.onrender.com
       - key: WAGTAILADMIN_BASE_URL
+        sync: false
       # Render injects PORT and forwards inbound traffic to this port.
       # Must match the port: field above and what gunicorn binds to.
       - key: PORT

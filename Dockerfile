@@ -4,8 +4,8 @@ WORKDIR /app
 COPY package.json package-lock.json ./
 RUN npm ci
 # Tailwind v4 — no tailwind.config.js; all config is in CSS.
-# Copy source files needed for the build: CSS source, JS source, fonts, images, and
-# all templates so Tailwind can scan them for utility class names.
+# Copy source files needed for the build: CSS source, JS source, fonts, images,
+# and all templates so Tailwind can scan them for utility class names.
 COPY static_src/ ./static_src/
 COPY templates/ ./templates/
 COPY wtrx/templates/ ./wtrx/templates/
@@ -28,7 +28,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libpq-dev \
     gcc \
     && rm -rf /var/lib/apt/lists/* && \
-    adduser --system --no-create-home --group app
+    adduser --system --no-create-home --group app --home /tmp
 
 # Install Python dependencies into an isolated venv before copying the full
 # source so this layer is cached independently of application code changes.
