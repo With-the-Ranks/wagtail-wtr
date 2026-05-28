@@ -32,17 +32,17 @@ dev:
 build-js:
 	mkdir -p static_compiled/js
 	rm -rf static_compiled/js/*
-	cp -r static_src/javascript/ static_compiled/js/
+	cp -r static_src/js/ static_compiled/
 
 build-fonts:
 	mkdir -p static_compiled/fonts
 	rm -rf static_compiled/fonts/*
-	cp -r static_src/fonts/ static_compiled/fonts/
+	cp -r static_src/fonts/ static_compiled/
 
 build-images:
 	mkdir -p static_compiled/images
 	rm -rf static_compiled/images/*
-	cp -r static_src/images/ static_compiled/images/
+	cp -r static_src/images/ static_compiled/
 
 build: build-js build-fonts build-images
 	npm run build
